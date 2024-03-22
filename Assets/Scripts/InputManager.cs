@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class InputManager : MonoSingleton<InputManager>
 {
+    public event System.Action<PickablePoint> PickablePointPlacedEvent;
+
     [Header("References")]
     public LayerMask PickibleLayer;
 
@@ -51,7 +53,7 @@ public class InputManager : MonoSingleton<InputManager>
             }
         }
 
-       // If dragging, move the selected object with the mouse
+        // If dragging, move the selected object with the mouse
         if (isDragging && selectedPickable != null)
         {
             RaycastHit hit;
@@ -68,5 +70,10 @@ public class InputManager : MonoSingleton<InputManager>
     public void SetBlockPicking(bool shouldBlock)
     {
         blockPicking = shouldBlock;
+    }
+
+    public void TriggerPickablePlacedEvent(PickablePoint point)
+    {
+        PickablePointPlacedEvent?.Invoke(point);
     }
 }

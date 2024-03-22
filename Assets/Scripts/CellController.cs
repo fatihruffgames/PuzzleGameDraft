@@ -1,11 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CellController : MonoBehaviour
 {
     [Header("Debug")]
     public bool isOccupied;
+    public bool isBlocked;
+
+    [Header("References")]
+    [SerializeField] CellCollisionHandler collisionHandler;
 
     public Vector3 GetCenter()
     {
@@ -16,5 +18,27 @@ public class CellController : MonoBehaviour
     public void SetOccupied(bool state)
     {
         isOccupied = state;
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (collisionHandler.evenlyAligned) 
+        {
+            isBlocked = false;
+            return;
+        }
+
+        if(other.transform.TryGetComponent(out SingleBlock block))
+        {
+            isBlocked = true;
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.transform.TryGetComponent(out SingleBlock block))
+        {
+            isBlocked = false;
+        }
+
     }
 }

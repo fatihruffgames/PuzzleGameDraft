@@ -1,23 +1,35 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
-using Unity.VisualScripting;
+using UnityEngine.UIElements;
+
+public enum DistanceType
+{
+    Short,
+    Long
+}
 
 public class PickablePoint : MonoBehaviour
 {
+    [Header("References")]
+    [SerializeField] Transform siblingPoint;
+
     [Header("Configuration")]
-    public bool IsPicked;
-    public bool IsPlaced;
+    [SerializeField] DistanceType distanceType;
     [SerializeField] LayerMask cellLayer;
 
     [Header("Debug")]
-    [SerializeField] CellController occupiedCell;
-    Vector3 _startPos;
+    public bool IsPicked;
+    public bool IsPlaced;
+    [SerializeField] float maxDistance;
+    public CellController occupiedCell;
+    Vector3 _currrentPos;
+
 
     private void Awake()
     {
-        _startPos = transform.position;
+        _currrentPos = transform.position;
         occupiedCell = null;
+
+        maxDistance = distanceType == DistanceType.Short ? 0.87f : 1.55f;
     }
 
     void Update()
@@ -31,7 +43,6 @@ public class PickablePoint : MonoBehaviour
 
             if (cell != null)
             {
-                Debug.Log("GetPlaced(); invoked");
                 GoToCell();
             }
             else
@@ -39,17 +50,35 @@ public class PickablePoint : MonoBehaviour
                 GetReleased();
             }
         }
+
+        if (!IsPicked) return;
+
+        GetCellFront();
     }
 
     void GoToCell()
     {
         CellController targetCell = GetCellFront();
         Vector3 cellPos = targetCell.transform.position;
+        float dist = Vector3.Distance(siblingPoint.position, transform.position);
 
+        if (maxDistance < dist)
+        {
+            Debug.LogWarning("Distance is greater than max distance: " + dist);
+            GetReleased();
+            return;
+        }
+
+        cellPos.z -= .1f;
         InputManager.instance.SetBlockPicking(shouldBlock: false);
         targetCell.SetOccupied(true);
         transform.position = cellPos;
+        _currrentPos = transform.position;
         occupiedCell = targetCell;
+        IsPicked = false;
+
+        // Trigger related placed event
+        InputManager.instance.TriggerPickablePlacedEvent(this);
     }
 
     #region GETTERS
@@ -66,12 +95,17 @@ public class PickablePoint : MonoBehaviour
             if (hit.collider.transform.TryGetComponent(out CellController cell))
             {
                 if (cell.isOccupied) return null;
+                else
+                {
+                    if (cell.isBlocked) return null;
+                }
                 return cell;
             }
         }
 
         return null;
     }
+
     public void GetPicked()
     {
         IsPicked = true;
@@ -86,17 +120,17 @@ public class PickablePoint : MonoBehaviour
     {
         IsPicked = false;
         InputManager.instance.SetBlockPicking(false);
-        transform.position = _startPos;
+        transform.position = _currrentPos;
     }
     public void GetPlaced(Vector3 cellPosition)
     {
         if (!GetCellFront()) return;
 
-        Debug.Log("GetPlaced(); invoked");
-        //  cellPosition.z -= 0.2f;
+
+        cellPosition.z -= -0.125f;
         transform.position = cellPosition;
         IsPicked = false;
     }
 
-    #endregion
+    #endregion
 }
