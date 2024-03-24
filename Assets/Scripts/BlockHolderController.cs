@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BlockHolderController : MonoBehaviour
@@ -8,26 +7,28 @@ public class BlockHolderController : MonoBehaviour
     [SerializeField] Material defaultAnchorMaterial;
     [SerializeField] Material activeAnchorMaterial;
     [SerializeField] Transform pickablePointHolder;
-    [SerializeField] List<Transform> anchorPoints;
 
     [Header("References")]
     [SerializeField] float distanceThreshold;
 
     [Header("Debug")]
-    [SerializeField] HingeJoint joint;
     [SerializeField] Transform activeAnchor;
-    [SerializeField] int index = 0;
+    [SerializeField] AnchorPointsController[] anchorPoints;
+    HingeJoint joint;
 
-    private void Start()
+    IEnumerator Start()
     {
+        anchorPoints = GetComponentsInChildren<AnchorPointsController>();
+
         joint = GetComponent<HingeJoint>();
-        SetAnchor();
 
+        yield return null;
+
+        OnPickablePointPlaced(null);
         InputManager.instance.PickablePointPlacedEvent += OnPickablePointPlaced;
-
     }
 
-    private void OnPickablePointPlaced(PickablePoint lastMovedPoint)
+    private void OnPickablePointPlaced(PickablePoint _)
     {
         CellController targetCell;
         Transform currentAnchor = null;
@@ -35,18 +36,22 @@ public class BlockHolderController : MonoBehaviour
 
         for (int p = 0; p < pickablePointHolder.childCount; p++)
         {
+            Debug.LogWarning("1");
             PickablePoint pickablePoint = pickablePointHolder.GetChild(p).GetComponent<PickablePoint>();
 
             if (pickablePoint.occupiedCell != null)
             {
+                Debug.LogWarning("2");
                 targetCell = pickablePoint.occupiedCell;
 
-                for (int i = 0; i < anchorPoints.Count; i++)
+                for (int i = 0; i < anchorPoints.Length; i++)
                 {
+                    Debug.LogWarning("3");
                     AnchorPointsController anchor = anchorPoints[i].GetComponent<AnchorPointsController>();
 
                     if (anchor.closestCell == targetCell)
                     {
+                        Debug.LogWarning("4");
                         count++;
                         currentAnchor = anchor.transform;
                     }
@@ -58,7 +63,6 @@ public class BlockHolderController : MonoBehaviour
         {
             if (count < 2) // multiple anchor point yok ise
             {
-                Debug.LogError("Gigi: " + count);
                 SetJointActivation(useLimits: false);
                 SetAnchor(currentAnchor);
             }
@@ -79,33 +83,8 @@ public class BlockHolderController : MonoBehaviour
         joint.connectedBody = activeAnchor.GetComponent<Rigidbody>();
         joint.anchor = activeAnchor.transform.localPosition;
     }
-
-
     void SetJointActivation(bool useLimits)
     {
         joint.useLimits = useLimits;
-    }
-
-    /// <summary>
-    /// ///////////
-    /// </summary>
-
-    private void SetAnchor()
-    {
-        if (activeAnchor != null) activeAnchor.GetComponent<Renderer>().sharedMaterial = defaultAnchorMaterial;
-        activeAnchor = anchorPoints[index];
-        activeAnchor.GetComponent<Renderer>().sharedMaterial = activeAnchorMaterial;
-        joint.connectedBody = activeAnchor.GetComponent<Rigidbody>();
-        joint.anchor = activeAnchor.transform.localPosition;
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            index++;
-            if (index == anchorPoints.Count) index = 0;
-            SetAnchor();
-        }
     }
 }

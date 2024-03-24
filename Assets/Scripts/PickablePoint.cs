@@ -30,6 +30,20 @@ public class PickablePoint : MonoBehaviour
         occupiedCell = null;
 
         maxDistance = distanceType == DistanceType.Short ? 0.87f : 1.55f;
+
+    }
+    private void Start()
+    {
+        InitOccupation();
+
+    }
+    private void InitOccupation()
+    {
+        CellController closestCell = BoardHolder.instance.GetClosestCell(transform.position);
+
+        Debug.Log(closestCell);
+        closestCell.SetOccupied(true);
+        occupiedCell = closestCell;
     }
 
     void Update()
