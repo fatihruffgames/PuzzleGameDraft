@@ -182,6 +182,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: CellCollisionHandler
       objectReference: {fileID: 0}
+    - target: {fileID: 914026439329680928, guid: ed8ee64e8fc42834f95d8b2b552b4302,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed8ee64e8fc42834f95d8b2b552b4302, type: 3}
 --- !u!114 &8013120618755619832 stripped

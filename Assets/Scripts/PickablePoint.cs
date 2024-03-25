@@ -11,6 +11,7 @@ public class PickablePoint : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] Transform siblingPoint;
+    public Transform mesh;
 
     [Header("Configuration")]
     [SerializeField] DistanceType distanceType;
@@ -30,7 +31,6 @@ public class PickablePoint : MonoBehaviour
         occupiedCell = null;
 
         maxDistance = distanceType == DistanceType.Short ? 0.87f : 1.55f;
-
     }
     private void Start()
     {
@@ -47,6 +47,8 @@ public class PickablePoint : MonoBehaviour
 
     void Update()
     {
+
+
         if (Input.GetMouseButtonUp(0))
         {
             if (!IsPicked) return;
@@ -66,14 +68,14 @@ public class PickablePoint : MonoBehaviour
 
         if (!IsPicked) return;
 
-        GetCellFront();
+        //  GetCellFront();
     }
 
     void GoToCell()
     {
         CellController targetCell = GetCellFront();
         Vector3 cellPos = targetCell.transform.position;
-        float dist = Vector3.Distance(siblingPoint.position, transform.position);
+        float dist = Vector3.Distance(siblingPoint.position, mesh.position);
 
         if (maxDistance < dist)
         {
@@ -82,6 +84,13 @@ public class PickablePoint : MonoBehaviour
             return;
         }
 
+        if (occupiedCell)
+        {
+            occupiedCell.SetOccupied(state: false);
+            occupiedCell = null;
+        }
+
+
         cellPos.z -= .1f;
         InputManager.instance.SetBlockPicking(shouldBlock: false);
         targetCell.SetOccupied(true);
@@ -89,6 +98,8 @@ public class PickablePoint : MonoBehaviour
         _currrentPos = transform.position;
         occupiedCell = targetCell;
         IsPicked = false;
+        mesh.transform.localPosition = Vector3.zero;
+        SetMeshes(true);
 
         // Trigger related placed event
         InputManager.instance.TriggerPickablePlacedEvent(this);
@@ -99,7 +110,7 @@ public class PickablePoint : MonoBehaviour
     CellController GetCellFront()
     {
         RaycastHit hit;
-        Ray ray = new Ray(transform.position + (Vector3.back), transform.forward);
+        Ray ray = new Ray(mesh.position + (Vector3.back), mesh.forward);
 
         Debug.DrawRay(ray.origin, ray.direction * 10f, Color.red);
 
@@ -119,14 +130,16 @@ public class PickablePoint : MonoBehaviour
         return null;
     }
 
+    void SetMeshes(bool flag)
+    {
+        transform.GetComponent<MeshRenderer>().enabled = flag;
+        mesh.gameObject.SetActive(!flag);
+    }
+
     public void GetPicked()
     {
         IsPicked = true;
-        if (occupiedCell)
-        {
-            occupiedCell.SetOccupied(state: false);
-            occupiedCell = null;
-        }
+        SetMeshes(false);
     }
 
     public void GetReleased()
@@ -134,16 +147,9 @@ public class PickablePoint : MonoBehaviour
         IsPicked = false;
         InputManager.instance.SetBlockPicking(false);
         transform.position = _currrentPos;
+        mesh.transform.localPosition = Vector3.zero;
+        SetMeshes(true);
+
     }
-    public void GetPlaced(Vector3 cellPosition)
-    {
-        if (!GetCellFront()) return;
-
-
-        cellPosition.z -= -0.125f;
-        transform.position = cellPosition;
-        IsPicked = false;
-    }
-
     #endregion
 }

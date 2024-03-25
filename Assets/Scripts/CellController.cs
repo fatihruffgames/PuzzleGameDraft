@@ -22,13 +22,13 @@ public class CellController : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (collisionHandler.evenlyAligned) 
+        if (collisionHandler.evenlyAligned)
         {
             isBlocked = false;
             return;
         }
 
-        if(other.transform.TryGetComponent(out SingleBlock block))
+        if (other.transform.TryGetComponent(out SingleBlock block))
         {
             isBlocked = true;
         }

@@ -61,7 +61,7 @@ public class InputManager : MonoSingleton<InputManager>
             if (Physics.Raycast(ray, out hit))
             {
                 Vector3 newPosition = new Vector3(hit.point.x, hit.point.y, zAxisOffset);
-                selectedPickable.transform.position = newPosition;
+                selectedPickable.transform.GetComponent<PickablePoint>().mesh.position = newPosition;
             }
         }
     }

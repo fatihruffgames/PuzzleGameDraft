@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6334562875895850275}
   - component: {fileID: 7103655397816696334}
   - component: {fileID: 2299940109392688821}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: CellCollisionHandler
   m_TagString: Untagged
   m_Icon: {fileID: 0}

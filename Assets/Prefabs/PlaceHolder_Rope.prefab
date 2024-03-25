@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 1721031094451801328}
   - component: {fileID: 1721031094451801335}
   - component: {fileID: 1721031094451801330}
-  m_Layer: 0
+  - component: {fileID: 4688406151631702871}
+  m_Layer: 9
   m_Name: PlaceHolder_Rope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,6 +101,20 @@ MonoBehaviour:
   startPoint: {fileID: 0}
   endPoint: {fileID: 0}
   ratio: 0.55
+--- !u!136 &4688406151631702871
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721031094451801333}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.8
+  m_Height: 2.07
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: -0.23000002}
 --- !u!1 &5307067160420242820
 GameObject:
   m_ObjectHideFlags: 0
@@ -111,7 +126,7 @@ GameObject:
   - component: {fileID: 1611747362667024345}
   - component: {fileID: 8847592937400775224}
   - component: {fileID: 137316358023479688}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}

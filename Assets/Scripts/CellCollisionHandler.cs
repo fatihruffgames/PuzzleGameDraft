@@ -6,16 +6,18 @@ public class CellCollisionHandler : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.tag == "Hole")
+        if (other.TryGetComponent(out HoleColliderHandler holeCollider))
         {
             evenlyAligned = true;
+            holeCollider.TriggerEvent(evenlyAligned);
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Hole")
+        if (other.TryGetComponent(out HoleColliderHandler holeCollider))
         {
+            holeCollider.TriggerEvent(evenlyAligned);
             evenlyAligned = false;
         }
     }

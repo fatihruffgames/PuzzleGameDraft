@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8925861122961315627}
   - component: {fileID: -3334383184412234271}
   - component: {fileID: 8785031626556154561}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: Holed_Green
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6980574020869273342}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.95, y: 0.95, z: 0.2}
@@ -177,6 +177,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Hole_Collider
+      objectReference: {fileID: 0}
+    - target: {fileID: 2709531110221547219, guid: d790c9dbd674a274b97111cc78ee08ce,
+        type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d790c9dbd674a274b97111cc78ee08ce, type: 3}
