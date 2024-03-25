@@ -41,7 +41,6 @@ public class PickablePoint : MonoBehaviour
     {
         CellController closestCell = BoardHolder.instance.GetClosestCell(transform.position);
 
-        Debug.Log(closestCell);
         closestCell.SetOccupied(true);
         occupiedCell = closestCell;
     }

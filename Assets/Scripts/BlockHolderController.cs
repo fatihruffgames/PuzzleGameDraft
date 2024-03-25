@@ -36,22 +36,18 @@ public class BlockHolderController : MonoBehaviour
 
         for (int p = 0; p < pickablePointHolder.childCount; p++)
         {
-            Debug.LogWarning("1");
             PickablePoint pickablePoint = pickablePointHolder.GetChild(p).GetComponent<PickablePoint>();
 
             if (pickablePoint.occupiedCell != null)
             {
-                Debug.LogWarning("2");
                 targetCell = pickablePoint.occupiedCell;
 
                 for (int i = 0; i < anchorPoints.Length; i++)
                 {
-                    Debug.LogWarning("3");
                     AnchorPointsController anchor = anchorPoints[i].GetComponent<AnchorPointsController>();
 
                     if (anchor.closestCell == targetCell)
                     {
-                        Debug.LogWarning("4");
                         count++;
                         currentAnchor = anchor.transform;
                     }
@@ -72,10 +68,14 @@ public class BlockHolderController : MonoBehaviour
                 Debug.LogWarning("Has multiple anchor points");
             }
         }
+        else
+        {
+            Debug.LogWarning("No anchor points");
+            Destroy(joint);
+        }
     }
     private void SetAnchor(Transform newAnchor)
     {
-        Debug.LogWarning("Previous anchor: " + activeAnchor + ", New anchor: " + newAnchor);
         if (activeAnchor != null) activeAnchor.GetComponent<Renderer>().sharedMaterial = defaultAnchorMaterial;
 
         activeAnchor = newAnchor;
@@ -85,6 +85,7 @@ public class BlockHolderController : MonoBehaviour
     }
     void SetJointActivation(bool useLimits)
     {
+        if (joint == null) Debug.LogError("HINGE JOINT IS NULL, BUT STILL TRYING TO ACCESS IT");
         joint.useLimits = useLimits;
     }
 }
