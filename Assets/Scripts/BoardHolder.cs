@@ -2,6 +2,18 @@ using UnityEngine;
 
 public class BoardHolder : MonoSingleton<BoardHolder>
 {
+
+   
+    private void Start()
+    {
+        GameManager.instance.LevelChangedEvent += OnLevelChanged;
+    }
+
+    private void OnLevelChanged()
+    {
+
+    }
+
     public CellController GetClosestCell(Vector3 from)
     {
         Transform closestChild = null;

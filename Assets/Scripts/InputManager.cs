@@ -1,14 +1,20 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class InputManager : MonoSingleton<InputManager>
 {
     public event System.Action<PickablePoint> PickablePointPlacedEvent;
+
+
+    public event System.Action<PickablePoint> PickablePointSelectedEvent;
+    public event System.Action<PickablePoint> PickablePointReleaseddEvent;
+
 
     [Header("References")]
     public LayerMask PickibleLayer;
 
     [Header("References")]
     [SerializeField] float zAxisOffset;
+    [SerializeField] float yAxisOffset;
 
     [Header("Debug")]
     [SerializeField] GameObject selectedPickable;
@@ -20,7 +26,6 @@ public class InputManager : MonoSingleton<InputManager>
     {
         mainCamera = Camera.main;
     }
-
 
     void Update()
     {
@@ -53,18 +58,42 @@ public class InputManager : MonoSingleton<InputManager>
             }
         }
 
-        // If dragging, move the selected object with the mouse
+
         if (isDragging && selectedPickable != null)
         {
-            RaycastHit hit;
-            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
+
+            PickablePoint pickablePoint = selectedPickable.transform.GetComponent<PickablePoint>();
+            bool canMove = true;
+            RaycastHit hitt;
+            Ray rayy = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Vector3 mousePosition = Vector3.zero;
+
+            if (Physics.Raycast(rayy, out hitt))
             {
-                Vector3 newPosition = new Vector3(hit.point.x, hit.point.y, zAxisOffset);
-                selectedPickable.transform.GetComponent<PickablePoint>().mesh.position = newPosition;
+                mousePosition = new Vector3(hitt.point.x, hitt.point.y , hitt.point.z);
+            }
+
+            float distance = Vector3.Distance(mousePosition, pickablePoint.siblingPoint.position);
+
+            if (distance > pickablePoint.maxDistance)
+            {
+                canMove = false;
+            }
+
+
+            if (canMove)
+            {
+                RaycastHit hit;
+                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out hit))
+                {
+                    Vector3 newPosition = new Vector3(hit.point.x, hit.point.y + yAxisOffset, zAxisOffset);
+                    pickablePoint.mesh.position = newPosition;
+                }
             }
         }
     }
+
 
 
     public void SetBlockPicking(bool shouldBlock)
@@ -76,4 +105,15 @@ public class InputManager : MonoSingleton<InputManager>
     {
         PickablePointPlacedEvent?.Invoke(point);
     }
+
+    public void TriggerPickableSelected(PickablePoint point)
+    {
+        PickablePointSelectedEvent?.Invoke(point);
+    }
+
+    public void TriggerPickableReleased(PickablePoint point)
+    {
+        PickablePointReleaseddEvent?.Invoke(point);
+    }
 }
+

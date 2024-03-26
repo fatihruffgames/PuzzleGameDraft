@@ -25,7 +25,6 @@ public class AnchorPointsController : MonoBehaviour
 
         if (distance > 0.2f)
         {
-            Debug.LogWarning("Closest cell is not near enough");
             isActive = false;
         }
         else

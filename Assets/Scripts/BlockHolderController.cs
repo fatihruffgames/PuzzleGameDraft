@@ -9,30 +9,39 @@ public class BlockHolderController : MonoBehaviour
     [SerializeField] Material activeAnchorMaterial;
     [SerializeField] Transform pickablePointHolder;
 
-    [Header("References")]
-    [SerializeField] float distanceThreshold;
+    [Header("Config")]
+    [SerializeField] bool ApplyForce;
 
     [Header("Debug")]
     [SerializeField] Transform activeAnchor;
+    [SerializeField] float startRotationAngle = -20f; 
     [SerializeField] AnchorPointsController[] anchorPoints;
+    float rotationSpeed = 1f; 
     HingeJoint joint;
 
     private void Awake()
     {
         joint = GetComponent<HingeJoint>();
-    }
 
+        if (ApplyForce)
+        {
+            Quaternion targetRotation = Quaternion.Euler(0f, 0f, startRotationAngle);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
+    }
     IEnumerator Start()
     {
+        GameManager.instance.AddBlock();
         anchorPoints = GetComponentsInChildren<AnchorPointsController>();
-
 
         yield return null;
 
         OnPickablePointPlaced(null);
         InputManager.instance.PickablePointPlacedEvent += OnPickablePointPlaced;
-    }
 
+        GetComponent<Rigidbody>().isKinematic = false;
+
+    }
     private void OnPickablePointPlaced(PickablePoint lastMovedPoint)
     {
         CellController targetCell;
@@ -142,7 +151,7 @@ public class BlockHolderController : MonoBehaviour
         {
             transform.AddComponent<HingeJoint>();
             joint = GetComponent<HingeJoint>();
-            Debug.LogError("HINGE JOINT IS NULL, BUT STILL TRYING TO ACCESS IT, ADDED NEW ONE");
+            Debug.LogWarning("HINGE JOINT IS NULL, BUT STILL TRYING TO ACCESS IT, ADDED NEW ONE");
         }
 
         if (anchor != null)

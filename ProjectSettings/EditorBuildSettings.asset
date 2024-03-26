@@ -6,6 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Materials/TestMats/mockUp/mockUp 0.unity
+    guid: 6b8dafdc32f01a84ca495167db8b8015
+  - enabled: 1
+    path: Assets/Materials/TestMats/mockUp/mockUp 1.unity
+    guid: 2a4a95443cb85e145ba2841f356f480f
+  - enabled: 1
+    path: Assets/Materials/TestMats/mockUp/mockUp 2.unity
+    guid: 58d3d71877a7e104c9e682314ee758c3
+  - enabled: 1
+    path: Assets/Materials/TestMats/mockUp/mockUp 3.unity
+    guid: 487df59747065a041b2138514f3dd988
   m_configObjects: {}

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public enum DistanceType
 {
@@ -10,8 +9,9 @@ public enum DistanceType
 public class PickablePoint : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] Transform siblingPoint;
+    public Transform siblingPoint;
     public Transform mesh;
+    public Renderer outline;
 
     [Header("Configuration")]
     [SerializeField] DistanceType distanceType;
@@ -20,17 +20,17 @@ public class PickablePoint : MonoBehaviour
     [Header("Debug")]
     public bool IsPicked;
     public bool IsPlaced;
-    [SerializeField] float maxDistance;
+    public float maxDistance;
     public CellController occupiedCell;
     Vector3 _currrentPos;
-
+    float initDistance;
 
     private void Awake()
     {
         _currrentPos = transform.position;
         occupiedCell = null;
 
-        maxDistance = distanceType == DistanceType.Short ? 0.87f : 1.55f;
+        maxDistance = distanceType == DistanceType.Short ? 0.87f : 1.25f;
     }
     private void Start()
     {
@@ -47,8 +47,6 @@ public class PickablePoint : MonoBehaviour
 
     void Update()
     {
-
-
         if (Input.GetMouseButtonUp(0))
         {
             if (!IsPicked) return;
@@ -68,7 +66,9 @@ public class PickablePoint : MonoBehaviour
 
         if (!IsPicked) return;
 
-        //  GetCellFront();
+        float distance = Vector3.Distance(mesh.transform.position, siblingPoint.position);
+        float normalizedDistance = (distance - initDistance) / maxDistance;
+        outline.material.SetFloat("_Width", normalizedDistance);
     }
 
     void GoToCell()
@@ -91,7 +91,7 @@ public class PickablePoint : MonoBehaviour
         }
 
 
-        cellPos.z -= .1f;
+        cellPos.z = transform.position.z;
         InputManager.instance.SetBlockPicking(shouldBlock: false);
         targetCell.SetOccupied(true);
         transform.position = cellPos;
@@ -140,6 +140,9 @@ public class PickablePoint : MonoBehaviour
     {
         IsPicked = true;
         SetMeshes(false);
+
+        initDistance = Vector3.Distance(mesh.transform.position, siblingPoint.position);
+        InputManager.instance.TriggerPickableSelected(this);
     }
 
     public void GetReleased()
@@ -149,6 +152,7 @@ public class PickablePoint : MonoBehaviour
         transform.position = _currrentPos;
         mesh.transform.localPosition = Vector3.zero;
         SetMeshes(true);
+        InputManager.instance.TriggerPickableReleased(this);
 
     }
     #endregion

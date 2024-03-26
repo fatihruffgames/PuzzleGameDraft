@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class SingleBlock : MonoBehaviour
@@ -5,11 +6,15 @@ public class SingleBlock : MonoBehaviour
     HoleColliderHandler holeCollider;
     string nonInteractableBlock = "NonInteractableBlock"; // The name of the layer you want to change to
 
-    void Start()
+    IEnumerator Start()
     {
         holeCollider = GetComponentInChildren<HoleColliderHandler>();
         holeCollider.AlignmentChangedEvent += OnAlignmentChanged;
 
+
+        yield return new WaitForSeconds(.5f);
+
+        GetComponent<Collider>().enabled = true;
     }
 
     private void OnAlignmentChanged(bool evenlyAligned)
