@@ -11,13 +11,17 @@ public class RopeController : MonoBehaviour
     [Header("Config")]
     public float ratio;
     [SerializeField] bool canPerform;
-
+    Transform startMesh;
+    Transform endMesh;
 
     private void Start()
     {
         InputManager.instance.PickablePointPlacedEvent += OnPickablePointPlaced;
         InputManager.instance.PickablePointSelectedEvent += OnSelected;
         InputManager.instance.PickablePointReleaseddEvent += OnReleased;
+
+        startMesh = startPoint.transform.GetComponent<PickablePoint>().mesh;
+        endMesh = endPoint.transform.GetComponent<PickablePoint>().mesh;
     }
     private void OnReleased(PickablePoint point)
     {
@@ -30,18 +34,15 @@ public class RopeController : MonoBehaviour
         Vector3 dir = endPoint.position - startPoint.position;
         Vector3 newPosition = (startPoint.position + endPoint.transform.position) / 2f;
 
-        // Set the position of the capsule to the new calculated position
         transform.position = newPosition;
         transform.localScale = new Vector3(transform.localScale.x, distance * ratio, transform.localScale.z);
 
-        // Set the rotation of the object
         transform.up = dir;
 
         Vector3 currentEulerAngles = transform.rotation.eulerAngles;
         currentEulerAngles.x = 0f;
         currentEulerAngles.y = 0f;
 
-        // Apply the modified rotation
         transform.rotation = Quaternion.Euler(currentEulerAngles);
     }
 
@@ -50,43 +51,13 @@ public class RopeController : MonoBehaviour
         if (point.transform != startPoint && point.transform != endPoint) return;
 
         canPerform = true;
-
     }
     private void OnPickablePointPlaced(PickablePoint point)
     {
         if (point.transform != startPoint && point.transform != endPoint) return;
 
-
         UpdateScaleAndRotation();
-
-        //// modify scale
-        //IEnumerator ScaleRoutine()
-        //{
-        //    yield return null;
-        //    float distance = Vector3.Distance(startPoint.position, endPoint.position);
-
-        //    Vector3 dir = endPoint.position - startPoint.position;
-        //    Vector3 newPosition = (startPoint.position + endPoint.position) / 2f;
-
-        //    // Set the position of the capsule to the new calculated position
-        //    transform.position = newPosition;
-        //    transform.localScale = new Vector3(transform.localScale.x, distance * ratio, transform.localScale.z);
-
-        //    // Set the rotation of the object
-        //    transform.up = dir;
-
-        //    Vector3 currentEulerAngles = transform.rotation.eulerAngles;
-        //    currentEulerAngles.x = 0f;
-        //    currentEulerAngles.y = 0f;
-
-        //    // Apply the modified rotation
-        //    transform.rotation = Quaternion.Euler(currentEulerAngles);
-        //}
-
-        //StartCoroutine(ScaleRoutine());
     }
-
-
 
     void Update()
     {
@@ -97,27 +68,20 @@ public class RopeController : MonoBehaviour
 
     void UpdateScaleAndRotation()
     {
-        Debug.Log("Released");
-        float distance = Vector3.Distance(startPoint.transform.GetComponent<PickablePoint>().mesh.position, endPoint.transform.GetComponent<PickablePoint>().mesh.position);
+        float distance = Vector3.Distance(startMesh.position, endMesh.position);
 
-        Vector3 dir = endPoint.transform.GetComponent<PickablePoint>().mesh.position - startPoint.transform.GetComponent<PickablePoint>().mesh.position;
-        Vector3 newPosition = (startPoint.transform.GetComponent<PickablePoint>().mesh.position + endPoint.transform.GetComponent<PickablePoint>().mesh.position) / 2f;
+        Vector3 dir = endMesh.position - startMesh.position;
+        Vector3 newPosition = (startMesh.position + endMesh.position) / 2f;
 
-        // Set the position of the capsule to the new calculated position
         transform.position = newPosition;
         transform.localScale = new Vector3(transform.localScale.x, distance * ratio, transform.localScale.z);
 
-        // Set the rotation of the object
         transform.up = dir;
 
         Vector3 currentEulerAngles = transform.rotation.eulerAngles;
         currentEulerAngles.x = 0f;
         currentEulerAngles.y = 0f;
 
-        // Apply the modified rotation
         transform.rotation = Quaternion.Euler(currentEulerAngles);
     }
-
-
-
 }

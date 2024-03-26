@@ -6,7 +6,6 @@ public class GameManager : MonoSingleton<GameManager>
 {
     public event System.Action LevelChangedEvent;
 
-    // [SerializeField] List<BlockInfo> LevelInfo;
     [SerializeField] int totalSceneCount;
 
     [Header("Debug")]
@@ -32,8 +31,6 @@ public class GameManager : MonoSingleton<GameManager>
         int nextScene = currentSceneIndex + 1;
 
         if (nextScene >= totalSceneCount) nextScene = 0;
-
-        Debug.LogWarning("Current: " + currentSceneIndex + ", Next: " + nextScene + ", TOTAL: " + totalSceneCount);
 
         SceneManager.LoadScene(nextScene);
 
