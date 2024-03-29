@@ -47,8 +47,9 @@ MonoBehaviour:
   PickibleLayer:
     serializedVersion: 2
     m_Bits: 64
-  zAxisOffset: -0.5
-  yAxisOffset: 0.2
-  selectedPickable: {fileID: 0}
+  zDefaultPos: -0.5
+  yAxisOffset: 0.4
+  selectedObject: {fileID: 0}
+  selectedPickablePoint: {fileID: 0}
   blockPicking: 0
   isDragging: 0

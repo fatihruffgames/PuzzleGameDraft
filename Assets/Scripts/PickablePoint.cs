@@ -37,6 +37,7 @@ public class PickablePoint : MonoBehaviour
         InitOccupation();
 
     }
+
     private void InitOccupation()
     {
         CellController closestCell = BoardHolder.instance.GetClosestCell(transform.position);
@@ -67,7 +68,7 @@ public class PickablePoint : MonoBehaviour
         if (!IsPicked) return;
 
         float distance = Vector3.Distance(mesh.transform.position, siblingPoint.position);
-        float normalizedDistance = (distance - initDistance) / maxDistance;
+        float normalizedDistance = (distance ) / maxDistance;
         outline.material.SetFloat("_Width", normalizedDistance);
     }
 
@@ -142,6 +143,7 @@ public class PickablePoint : MonoBehaviour
         SetMeshes(false);
 
         initDistance = Vector3.Distance(mesh.transform.position, siblingPoint.position);
+        InputManager.instance.SetSelectedPickablePoint(this);
         InputManager.instance.TriggerPickableSelected(this);
     }
 
@@ -153,7 +155,6 @@ public class PickablePoint : MonoBehaviour
         mesh.transform.localPosition = Vector3.zero;
         SetMeshes(true);
         InputManager.instance.TriggerPickableReleased(this);
-
     }
     #endregion
 }

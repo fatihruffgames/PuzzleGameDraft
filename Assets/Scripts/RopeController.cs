@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Drawing;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RopeController : MonoBehaviour
 {
@@ -8,9 +6,9 @@ public class RopeController : MonoBehaviour
     [SerializeField] Transform startPoint;
     [SerializeField] Transform endPoint;
 
-    [Header("Config")]
-    public float ratio;
+    [Header("Debug")]
     [SerializeField] bool canPerform;
+    [SerializeField] float scaleMultiplier = 0.55f;
     Transform startMesh;
     Transform endMesh;
 
@@ -35,7 +33,7 @@ public class RopeController : MonoBehaviour
         Vector3 newPosition = (startPoint.position + endPoint.transform.position) / 2f;
 
         transform.position = newPosition;
-        transform.localScale = new Vector3(transform.localScale.x, distance * ratio, transform.localScale.z);
+        transform.localScale = new Vector3(transform.localScale.x, distance * scaleMultiplier, transform.localScale.z);
 
         transform.up = dir;
 
@@ -74,7 +72,7 @@ public class RopeController : MonoBehaviour
         Vector3 newPosition = (startMesh.position + endMesh.position) / 2f;
 
         transform.position = newPosition;
-        transform.localScale = new Vector3(transform.localScale.x, distance * ratio, transform.localScale.z);
+        transform.localScale = new Vector3(transform.localScale.x, distance * scaleMultiplier, transform.localScale.z);
 
         transform.up = dir;
 

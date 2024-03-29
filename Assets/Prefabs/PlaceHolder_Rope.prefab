@@ -101,6 +101,7 @@ MonoBehaviour:
   startPoint: {fileID: 0}
   endPoint: {fileID: 0}
   ratio: 0.55
+  canPerform: 0
 --- !u!136 &4688406151631702871
 CapsuleCollider:
   m_ObjectHideFlags: 0

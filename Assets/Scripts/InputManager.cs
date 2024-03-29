@@ -12,12 +12,13 @@ public class InputManager : MonoSingleton<InputManager>
     [Header("References")]
     public LayerMask PickibleLayer;
 
-    [Header("References")]
-    [SerializeField] float zAxisOffset;
+    [Header("Config")]
+    [SerializeField] float zDefaultPos;
     [SerializeField] float yAxisOffset;
 
     [Header("Debug")]
-    [SerializeField] GameObject selectedPickable;
+    [SerializeField] GameObject selectedObject;
+    [SerializeField] PickablePoint selectedPickablePoint;
     [SerializeField] bool blockPicking;
     [SerializeField] bool isDragging = false;
     private Camera mainCamera;
@@ -41,7 +42,7 @@ public class InputManager : MonoSingleton<InputManager>
                     if (blockPicking) return;
                     if (pickable.IsPicked) return;
 
-                    selectedPickable = pickable.gameObject;
+                    selectedObject = pickable.gameObject;
                     pickable.GetPicked();
 
                     blockPicking = true;
@@ -51,51 +52,57 @@ public class InputManager : MonoSingleton<InputManager>
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            if (selectedPickable != null)
+            if (selectedObject != null)
             {
-                selectedPickable = null;
+                selectedObject = null;
                 isDragging = false;
             }
         }
 
+        #region Old Implementation
+        /* if (isDragging && selectedObject != null)
+         {
+             if (selectedPickablePoint != null)
+             {
+                 RaycastHit hit;
+                 Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+                 if (Physics.Raycast(ray, out hit))
+                 {
+                     Vector3 newPosition = new Vector3(hit.point.x, hit.point.y + yAxisOffset, zAxisOffset);
+                     Vector3 direction = newPosition - selectedPickablePoint.siblingPoint.position;
 
-        if (isDragging && selectedPickable != null)
+                     if (direction.magnitude > selectedPickablePoint.maxDistance)
+                     {
+                         direction = direction.normalized * selectedPickablePoint.maxDistance;
+                     }
+                     selectedPickablePoint.mesh.position = selectedPickablePoint.siblingPoint.position + direction;
+                 }
+             }
+         }*/
+        #endregion
+
+
+        if (isDragging && selectedObject != null && selectedPickablePoint != null)
         {
+            // Convert mouse position to world position
+            Vector3 mousePosition = mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, zDefaultPos));
 
-            PickablePoint pickablePoint = selectedPickable.transform.GetComponent<PickablePoint>();
-            bool canMove = true;
-            RaycastHit hitt;
-            Ray rayy = mainCamera.ScreenPointToRay(Input.mousePosition);
-            Vector3 mousePosition = Vector3.zero;
+            // Calculate the new position based on the mouse position
+            Vector3 newPosition = new Vector3(mousePosition.x, mousePosition.y + yAxisOffset, zDefaultPos);
 
-            if (Physics.Raycast(rayy, out hitt))
+            // Calculate the direction from the sibling point to the new position
+            Vector3 direction = newPosition - selectedPickablePoint.siblingPoint.position;
+
+            // If the direction magnitude exceeds the max distance, limit it
+            if (direction.magnitude > selectedPickablePoint.maxDistance)   
             {
-                mousePosition = new Vector3(hitt.point.x, hitt.point.y , hitt.point.z);
+                direction = direction.normalized * selectedPickablePoint.maxDistance;
             }
 
-            float distance = Vector3.Distance(mousePosition, pickablePoint.siblingPoint.position);
-
-            if (distance > pickablePoint.maxDistance)
-            {
-                canMove = false;
-            }
-
-
-            if (canMove)
-            {
-                RaycastHit hit;
-                Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out hit))
-                {
-                    Vector3 newPosition = new Vector3(hit.point.x, hit.point.y + yAxisOffset, zAxisOffset);
-                    pickablePoint.mesh.position = newPosition;
-                }
-            }
+            // Set the new position of the mesh
+            selectedPickablePoint.mesh.position = selectedPickablePoint.siblingPoint.position + direction;
         }
-    }
-
-
-
+    }  
     public void SetBlockPicking(bool shouldBlock)
     {
         blockPicking = shouldBlock;
@@ -114,6 +121,11 @@ public class InputManager : MonoSingleton<InputManager>
     public void TriggerPickableReleased(PickablePoint point)
     {
         PickablePointReleaseddEvent?.Invoke(point);
+    }
+
+    public void SetSelectedPickablePoint(PickablePoint point)
+    {
+        selectedPickablePoint = point;
     }
 }
 
