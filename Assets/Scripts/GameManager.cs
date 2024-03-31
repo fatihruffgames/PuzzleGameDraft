@@ -50,6 +50,19 @@ public class GameManager : MonoSingleton<GameManager>
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    /// <summary>
+    /// //////////////
+    /// </summary>
+    /// 
+
+    public int MatchedCount;
+    public void IncreaseMatchCount()
+    {
+        MatchedCount++;
+    }
+
+
 }
 
 [System.Serializable]

@@ -15,17 +15,14 @@ public class GridManager : MonoSingleton<GridManager>
             return null;
         }
 
-        // Initialize variables to keep track of the closest cell and its distance
         GridCell closestCell = null;
         float closestDistance = Mathf.Infinity;
 
-        // Loop through each GridCell in the list
-        foreach (GridCell cell in GridPlan)
+        for (int i = 0; i < GridPlan.Count; i++)
         {
-            // Calculate the distance between the current cell and the given position
+            GridCell cell = GridPlan[i];
             float distance = Vector3.Distance(cell.transform.position, from);
 
-            // Check if this cell is closer than the previous closest cell
             if (distance < closestDistance)
             {
                 closestCell = cell;
@@ -35,4 +32,26 @@ public class GridManager : MonoSingleton<GridManager>
 
         return closestCell;
     }
+
+    public GridCell GetGridCellByCoordinates(Vector2Int coordinates)
+    {
+        if (GridPlan == null || GridPlan.Count == 0)
+        {
+            Debug.LogWarning("GridPlan list is empty or null!");
+            return null;
+        }
+
+        for (int i = 0; i < GridPlan.Count; i++)
+        {
+            GridCell cell = GridPlan[i];
+            if (cell.GetCoordinates() == coordinates)
+            {
+                return cell;
+            }
+        }
+
+        Debug.LogWarning("No GridCell found with coordinates: " + coordinates);
+        return null;
+    }
+
 }
