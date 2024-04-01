@@ -150,33 +150,37 @@ public class BlockSelector : MonoSingleton<BlockSelector>
 
         if (enable)
         {
-            GameObject cloneArrow = Instantiate(arrowPrefab, cell.transform);
-            float xOffset = 0;
-            float zOffset = 0;
+            int xOffset = 0;
+            int zOffset = 0;
+            Quaternion rotation = Quaternion.identity;
             switch (moveDirection)
             {
                 case MoveDir.None:
                     break;
                 case MoveDir.Right:
-                    xOffset += 1.1f;
-                    cloneArrow.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                    xOffset += 1;
+                    rotation = Quaternion.Euler(0f, 0f, 0f);
                     break;
                 case MoveDir.Left:
-                    xOffset -= 1.1f;
-                    cloneArrow.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+                    xOffset -= 1;
+                    rotation = Quaternion.Euler(0f, 180f, 0f);
                     break;
                 case MoveDir.Up:
-                    zOffset += 1.1f;
-                    cloneArrow.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
+                    zOffset += 1;
+                    rotation = Quaternion.Euler(0f, -90f, 0f);
                     break;
                 case MoveDir.Down:
-                    zOffset -= 1.1f;
-                    cloneArrow.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+                    zOffset -= 1;
+                    rotation = Quaternion.Euler(0f, 90f, 0f);
                     break;
             }
+            Vector2Int newCellCoordinates = new Vector2Int(cell.GetCoordinates().x + xOffset, cell.GetCoordinates().y + zOffset);
+            Transform parentCell = GridManager.instance.GetGridCellByCoordinates(newCellCoordinates).transform;
 
-            Vector3 pos = new Vector3(cell.GetCenter().x, .45f, cell.GetCenter().y);
-            //cloneArrow.transform.localPosition = pos;
+
+
+            GameObject cloneArrow = Instantiate(arrowPrefab, parentCell);
+            cloneArrow.transform.rotation = rotation;
             currentArrow = cloneArrow;
 
         }
