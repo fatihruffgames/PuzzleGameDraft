@@ -19,7 +19,7 @@ public class GridCell : MonoBehaviour
         neighbours = GetNeighbors();
     }
 
-    public void CheckNeighborsColor(bool matchedAlredy = false)
+     void CheckNeighborsColor(bool matchedAlredy = false)
     {
         if (upperColoredBlock == null) return;
 

@@ -1,7 +1,7 @@
-using System.Collections.Generic;
-using UnityEngine;
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class ColoredBlock : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class ColoredBlock : MonoBehaviour
     public ColorEnum ColorEnum;
 
     [Header("References")]
+    [SerializeField] GameObject dotCanvas;
     public List<Material> colorMats;
 
     [Header("Debug")]
@@ -46,8 +47,11 @@ public class ColoredBlock : MonoBehaviour
     {
         currentOccupiedCell = GridManager.instance.GetClosestGridCell(from: transform.position);
         currentOccupiedCell.SetOccupied(state: true, this);
+        BlockSelector.instance.MovingTriggeredEvent += DisableDot;
+        BlockSelector.instance.MouseButtonUpEvent += DisableDot;
     }
-    public void PerformMoving(MoveDir moveDir, ColoredBlock firstColoredElement)
+
+    public void PerformMoving(MoveDir moveDir, ColoredBlock firstColoredElement, ColoredBlock lastColoredElement)
     {
         List<Vector2Int> pathCells = new();
 
@@ -92,11 +96,10 @@ public class ColoredBlock : MonoBehaviour
             }
         }
 
-        StartCoroutine(MovingRoutine(pathCells, firstColoredElement));
-        BlockSelector.instance.ResetParams();
+        StartCoroutine(MovingRoutine(pathCells, firstColoredElement, lastColoredElement));
     }
 
-    public void GoToCell(List<Vector2Int> path, ColoredBlock firstColoredElement)
+    public void GoToCell(List<Vector2Int> path, ColoredBlock firstColoredElement, ColoredBlock lastColoredElement)
     {
         for (int i = 0; i < path.Count; i++)
         {
@@ -104,10 +107,10 @@ public class ColoredBlock : MonoBehaviour
             this.path.Add(newCell);
         }
 
-        StartCoroutine(MovingRoutine(path, firstColoredElement));
+        StartCoroutine(MovingRoutine(path, firstColoredElement, lastColoredElement));
     }
 
-    IEnumerator MovingRoutine(List<Vector2Int> path, ColoredBlock firstColoredElement)
+    IEnumerator MovingRoutine(List<Vector2Int> path, ColoredBlock firstColoredElement, ColoredBlock lastColoredElement)
     {
         currentOccupiedCell.SetOccupied(false);
         GridCell previousCell = currentOccupiedCell;
@@ -120,7 +123,7 @@ public class ColoredBlock : MonoBehaviour
         yield return null;
 
         if (previousLinkedBlock != null)
-            previousLinkedBlock.GoToCell(pathForPrevious, firstColoredElement);
+            previousLinkedBlock.GoToCell(pathForPrevious, firstColoredElement, lastColoredElement);
 
         for (int i = 0; i < path.Count; i++)
         {
@@ -134,38 +137,38 @@ public class ColoredBlock : MonoBehaviour
 
             transform.DOMove(newCell.GetCenter(), .25f).OnComplete(() =>
             {
-                if (i == path.Count - 1)
+                if (newCell.GetCoordinates() == path[path.Count - 1])
                 {
+                    if (firstColoredElement == this) routineEnded = true;
+                 
                     ResetParams();
-
-                    if (firstColoredElement == this)
-                    {
-                        routineEnded = true;
-                    }
-
                 }
             });
         }
 
-        if (routineEnded)
+        if (firstColoredElement == this)
         {
-            yield return new WaitForSeconds(.2f);
-            currentOccupiedCell.CheckNeighborsColor();
+            yield return new WaitUntil(() => routineEnded == true);
+            BlockSelector.instance.ResetParams();
+            MatchCountManager.instance.CheckMatchingCells(lastColoredElement.GetOccupiedCell());
         }
     }
 
     public void DestroySelf()
     {
+        BlockSelector.instance.MovingTriggeredEvent -= DisableDot;
+        BlockSelector.instance.MouseButtonUpEvent -= DisableDot;
         ResetParams();
         Destroy(gameObject, .1f);
     }
 
     void ResetParams()
     {
+        dotCanvas.SetActive(false);
         previousLinkedBlock = null;
         path.Clear();
     }
-    
+
     #region GETTERS & SETTERS
 
     public void SetPreviousLinkedBlock(ColoredBlock linked)
@@ -178,6 +181,14 @@ public class ColoredBlock : MonoBehaviour
         return currentOccupiedCell;
     }
 
+    public void GetSelected()
+    {
+        dotCanvas.SetActive(true);
+    }
+    public void DisableDot()
+    {
+        dotCanvas.SetActive(false);
+    }
     #endregion
 }
 public enum ColorEnum
