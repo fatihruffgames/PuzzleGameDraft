@@ -55,7 +55,7 @@ public class BlockSelector : MonoSingleton<BlockSelector>
                 Vector3 _hitPos;
                 if (HitColoredBlock(out block, out _hitPos))
                 {
-                   // if (block.IsMoving) return;
+                    // if (block.IsMoving) return;
                     if (!CheckIfTheBlockAddable(block)) return;
 
                     Debug.Log("Linking");
@@ -256,8 +256,15 @@ public class BlockSelector : MonoSingleton<BlockSelector>
                 coloredBlockPoses.Add(new Vector3(occupiedCellPos.x, occupiedCellPos.y + .4f, occupiedCellPos.z));
             }
 
-            Transform possibleTargetCell = GetPossibleTargetCell().transform;
-            coloredBlockPoses.Add(new Vector3(possibleTargetCell.position.x, possibleTargetCell.position.y + .4f, possibleTargetCell.position.z));
+            Transform possibleTargetCell = null;
+            if (GetPossibleTargetCell() != null)
+            {
+                possibleTargetCell = GetPossibleTargetCell().transform;
+                coloredBlockPoses.Add(new Vector3(possibleTargetCell.position.x, possibleTargetCell.position.y + .4f, possibleTargetCell.position.z));
+            }
+            else
+                setArrow = false;
+
             currentLineRenderer.positionCount = coloredBlockPoses.Count;
 
             for (int i = 0; i < coloredBlockPoses.Count; i++)
