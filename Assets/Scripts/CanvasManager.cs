@@ -6,4 +6,9 @@ public class CanvasManager : MonoBehaviour
     {
         GameManager.instance.OnTapRestart();
     }
+
+    public void OnNext()
+    {
+        GameManager.instance.OnTapNext();
+    }
 }

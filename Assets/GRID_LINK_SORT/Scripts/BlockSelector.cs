@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class BlockSelector : MonoSingleton<BlockSelector>
 {
-    public event System.Action MovingTriggeredEvent;
+    public event System.Action<List<ColoredBlock>> MovingTriggeredEvent;
     public event System.Action MouseButtonUpEvent;
 
     [Header("References")]
@@ -22,16 +22,18 @@ public class BlockSelector : MonoSingleton<BlockSelector>
     [SerializeField] LineRenderer currentLineRenderer;
     [SerializeField] MoveDir moveDirection;
     [SerializeField] List<ColoredBlock> selectedBlocks = new List<ColoredBlock>();
-
+    GameObject currentArrow;
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             ColoredBlock block;
-            if (HitColoredBlock(out block))
+            Vector3 _hitPos;
+            if (HitColoredBlock(out block, out _hitPos))
             {
                 if (blockPickingFirstColored) return;
+                if (block.IsMoving) return;
 
                 firstPickedBlock = block;
                 selectedBlocks.Add(firstPickedBlock);
@@ -50,16 +52,19 @@ public class BlockSelector : MonoSingleton<BlockSelector>
             if (Input.GetMouseButton(0))
             {
                 ColoredBlock block;
-                if (HitColoredBlock(out block))
+                Vector3 _hitPos;
+                if (HitColoredBlock(out block, out _hitPos))
                 {
-                    Debug.Log("Linking");
+                   // if (block.IsMoving) return;
                     if (!CheckIfTheBlockAddable(block)) return;
 
+                    Debug.Log("Linking");
                     ColoredBlock previous = selectedBlocks[selectedBlocks.Count - 1];
 
                     selectedBlocks.Add(block);
                     block.GetSelected();
-                    UpdateLineRenderer();
+                    UpdateLineRenderer(false);
+
                     if (selectedBlocks.Count != 1)
                         block.SetPreviousLinkedBlock(previous);
 
@@ -70,18 +75,8 @@ public class BlockSelector : MonoSingleton<BlockSelector>
                     Vector3 hitPos;
                     if (HitDefaultLayer(out hitPos))
                     {
-                        ColoredBlock lastColoredBlock = selectedBlocks[selectedBlocks.Count - 1];
-                        float distanceFromLastBlock = Vector3.Distance(lastColoredBlock.transform.position, hitPos);
-
-                        if (distanceFromLastBlock > maxDragDistance)
-                        {
-                            moveDirection = GetDir(hitPos, lastColoredBlock.transform.position);
-                            lastColoredBlock.PerformMoving(moveDirection, selectedBlocks[0], lastColoredBlock);
-                            stopLinking = true;
-                            DestroyLineRenderer();
-                            SetArrow(enable: true, lastColoredBlock.GetOccupiedCell());
-                            MovingTriggeredEvent?.Invoke();
-                        }
+                        moveDirection = GetDir(hitPos, selectedBlocks[selectedBlocks.Count - 1].transform.position);
+                        UpdateLineRenderer(true);
                     }
                 }
                 #endregion
@@ -91,6 +86,24 @@ public class BlockSelector : MonoSingleton<BlockSelector>
 
         if (Input.GetMouseButtonUp(0))
         {
+            Vector3 hitPos;
+            if (HitDefaultLayer(out hitPos))
+            {
+                ColoredBlock lastColoredBlock = selectedBlocks[selectedBlocks.Count - 1];
+                float distanceFromLastBlock = Vector3.Distance(lastColoredBlock.transform.position, hitPos);
+
+                if (distanceFromLastBlock > maxDragDistance)
+                {
+                    moveDirection = GetDir(hitPos, lastColoredBlock.transform.position);
+                    lastColoredBlock.PerformMoving(moveDirection, selectedBlocks[0], lastColoredBlock);
+
+                    stopLinking = true;
+                    DestroyLineRenderer();
+                    SetArrow(enable: false);
+                    MovingTriggeredEvent?.Invoke(selectedBlocks);
+                }
+            }
+
             ResetParams();
             MouseButtonUpEvent?.Invoke();
         }
@@ -126,7 +139,6 @@ public class BlockSelector : MonoSingleton<BlockSelector>
         firstPickedBlock = null;
         DestroyLineRenderer();
         selectedBlocks.Clear();
-        SetArrow(enable: false);
         moveDirection = MoveDir.None;
     }
 
@@ -143,43 +155,68 @@ public class BlockSelector : MonoSingleton<BlockSelector>
         return addable;
     }
 
-    GameObject currentArrow;
-    void SetArrow(bool enable, GridCell cell = null)
+
+
+    GridCell GetPossibleTargetCell()
+    {
+        GridCell possibletarget;
+        GridCell lastPickedCell = selectedBlocks[selectedBlocks.Count - 1].GetOccupiedCell();
+
+        int xOffset = 0;
+        int zOffset = 0;
+
+        switch (moveDirection)
+        {
+            case MoveDir.None:
+                break;
+            case MoveDir.Right:
+                xOffset += 1;
+                break;
+            case MoveDir.Left:
+                xOffset -= 1;
+                break;
+            case MoveDir.Up:
+                zOffset += 1;
+                break;
+            case MoveDir.Down:
+                zOffset -= 1;
+                break;
+        }
+
+
+        Vector2Int newCellCoordinates = new Vector2Int(lastPickedCell.GetCoordinates().x + xOffset, lastPickedCell.GetCoordinates().y + zOffset);
+        possibletarget = GridManager.instance.GetGridCellByCoordinates(newCellCoordinates);
+
+
+        return possibletarget;
+    }
+
+    void SetArrow(bool enable, Transform cell = null)
     {
         if (currentArrow != null) Destroy(currentArrow);
 
         if (enable)
         {
-            int xOffset = 0;
-            int zOffset = 0;
             Quaternion rotation = Quaternion.identity;
             switch (moveDirection)
             {
                 case MoveDir.None:
                     break;
                 case MoveDir.Right:
-                    xOffset += 1;
                     rotation = Quaternion.Euler(0f, 0f, 0f);
                     break;
                 case MoveDir.Left:
-                    xOffset -= 1;
                     rotation = Quaternion.Euler(0f, 180f, 0f);
                     break;
                 case MoveDir.Up:
-                    zOffset += 1;
                     rotation = Quaternion.Euler(0f, -90f, 0f);
                     break;
                 case MoveDir.Down:
-                    zOffset -= 1;
                     rotation = Quaternion.Euler(0f, 90f, 0f);
                     break;
             }
-            Vector2Int newCellCoordinates = new Vector2Int(cell.GetCoordinates().x + xOffset, cell.GetCoordinates().y + zOffset);
-            Transform parentCell = GridManager.instance.GetGridCellByCoordinates(newCellCoordinates).transform;
 
-
-
-            GameObject cloneArrow = Instantiate(arrowPrefab, parentCell);
+            GameObject cloneArrow = Instantiate(arrowPrefab, cell.transform);
             cloneArrow.transform.rotation = rotation;
             currentArrow = cloneArrow;
 
@@ -188,23 +225,9 @@ public class BlockSelector : MonoSingleton<BlockSelector>
         {
             Destroy(currentArrow);
         }
-
-
     }
 
     #region LINE RENDERER
-
-    private void CreateOrUpdateLineRenderer()
-    {
-        if (currentLineRenderer == null)
-        {
-            CreateLineRenderer();
-        }
-        else
-        {
-            UpdateLineRenderer();
-        }
-    }
 
     private void CreateLineRenderer()
     {
@@ -222,17 +245,29 @@ public class BlockSelector : MonoSingleton<BlockSelector>
         }
     }
 
-    private void UpdateLineRenderer()
+    private void UpdateLineRenderer(bool setArrow)
     {
         if (currentLineRenderer != null)
         {
-            currentLineRenderer.positionCount = selectedBlocks.Count;
-
+            List<Vector3> coloredBlockPoses = new List<Vector3>();
             for (int i = 0; i < selectedBlocks.Count; i++)
             {
-                Vector3 pos = new Vector3(selectedBlocks[i].transform.position.x, selectedBlocks[i].transform.position.y + 0.2f, selectedBlocks[i].transform.position.z);
+                Vector3 occupiedCellPos = selectedBlocks[i].GetOccupiedCell().transform.position;
+                coloredBlockPoses.Add(new Vector3(occupiedCellPos.x, occupiedCellPos.y + .4f, occupiedCellPos.z));
+            }
+
+            Transform possibleTargetCell = GetPossibleTargetCell().transform;
+            coloredBlockPoses.Add(new Vector3(possibleTargetCell.position.x, possibleTargetCell.position.y + .4f, possibleTargetCell.position.z));
+            currentLineRenderer.positionCount = coloredBlockPoses.Count;
+
+            for (int i = 0; i < coloredBlockPoses.Count; i++)
+            {
+                Vector3 pos = coloredBlockPoses[i];
                 currentLineRenderer.SetPosition(i, pos);
             }
+
+            if (setArrow)
+                SetArrow(enable: true, possibleTargetCell);
         }
     }
 
@@ -248,10 +283,11 @@ public class BlockSelector : MonoSingleton<BlockSelector>
     }
     #endregion
     #region Raycast Region
-    bool HitColoredBlock(out ColoredBlock hitBlock)
+    bool HitColoredBlock(out ColoredBlock hitBlock, out Vector3 _hitPos)
     {
         bool isHit = false;
         hitBlock = null;
+        _hitPos = Vector3.zero;
 
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -262,9 +298,9 @@ public class BlockSelector : MonoSingleton<BlockSelector>
             {
                 isHit = true;
                 hitBlock = block;
+                _hitPos = hit.point;
             }
         }
-
         return isHit;
     }
 

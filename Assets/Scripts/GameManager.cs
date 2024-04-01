@@ -50,7 +50,15 @@ public class GameManager : MonoSingleton<GameManager>
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+    public void OnTapNext()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextScene = currentSceneIndex + 1;
 
+        if (nextScene >= totalSceneCount) nextScene = 0;
+
+        SceneManager.LoadScene(nextScene);
+    }
     /// <summary>
     /// //////////////
     /// </summary>

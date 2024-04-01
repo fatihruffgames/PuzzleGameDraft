@@ -7,6 +7,7 @@ public class ColoredBlock : MonoBehaviour
 {
     [Header("Config")]
     public ColorEnum ColorEnum;
+    public bool IsMoving;
 
     [Header("References")]
     [SerializeField] GameObject dotCanvas;
@@ -47,7 +48,7 @@ public class ColoredBlock : MonoBehaviour
     {
         currentOccupiedCell = GridManager.instance.GetClosestGridCell(from: transform.position);
         currentOccupiedCell.SetOccupied(state: true, this);
-        BlockSelector.instance.MovingTriggeredEvent += DisableDot;
+        //  BlockSelector.instance.MovingTriggeredEvent += OnMovingStarted;
         BlockSelector.instance.MouseButtonUpEvent += DisableDot;
     }
 
@@ -112,6 +113,7 @@ public class ColoredBlock : MonoBehaviour
 
     IEnumerator MovingRoutine(List<Vector2Int> path, ColoredBlock firstColoredElement, ColoredBlock lastColoredElement)
     {
+        // IsMoving = true;
         currentOccupiedCell.SetOccupied(false);
         GridCell previousCell = currentOccupiedCell;
 
@@ -140,7 +142,7 @@ public class ColoredBlock : MonoBehaviour
                 if (newCell.GetCoordinates() == path[path.Count - 1])
                 {
                     if (firstColoredElement == this) routineEnded = true;
-                 
+
                     ResetParams();
                 }
             });
@@ -156,7 +158,7 @@ public class ColoredBlock : MonoBehaviour
 
     public void DestroySelf()
     {
-        BlockSelector.instance.MovingTriggeredEvent -= DisableDot;
+        //    BlockSelector.instance.MovingTriggeredEvent -= OnMovingStarted;
         BlockSelector.instance.MouseButtonUpEvent -= DisableDot;
         ResetParams();
         Destroy(gameObject, .1f);
@@ -164,9 +166,21 @@ public class ColoredBlock : MonoBehaviour
 
     void ResetParams()
     {
+        // IsMoving = false;
         dotCanvas.SetActive(false);
         previousLinkedBlock = null;
         path.Clear();
+    }
+    private void OnMovingStarted(List<ColoredBlock> selectedblocks)
+    {
+        //if (selectedblocks.Contains(this))
+        //{
+        //    IsMoving = true;
+        //}
+    }
+    public void DisableDot()
+    {
+        dotCanvas.SetActive(false);
     }
 
     #region GETTERS & SETTERS
@@ -184,10 +198,6 @@ public class ColoredBlock : MonoBehaviour
     public void GetSelected()
     {
         dotCanvas.SetActive(true);
-    }
-    public void DisableDot()
-    {
-        dotCanvas.SetActive(false);
     }
     #endregion
 }
