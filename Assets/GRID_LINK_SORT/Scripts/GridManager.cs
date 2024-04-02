@@ -3,8 +3,18 @@ using UnityEngine;
 
 public class GridManager : MonoSingleton<GridManager>
 {
+    [Header("Debug")]
     public List<GridCell> GridPlan;
-
+    protected override void Awake()
+    {
+        base.Awake();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GridCell cell = transform.GetChild(i).GetComponent<GridCell>();
+            if ((cell.gameObject.activeInHierarchy))
+                GridPlan.Add(cell);
+        }
+    }
 
     public GridCell GetClosestGridCell(Vector3 from)
     {
@@ -36,7 +46,6 @@ public class GridManager : MonoSingleton<GridManager>
     {
         if (GridPlan == null || GridPlan.Count == 0)
         {
-            Debug.LogWarning("GridPlan list is empty or null!");
             return null;
         }
 
@@ -49,7 +58,6 @@ public class GridManager : MonoSingleton<GridManager>
             }
         }
 
-        Debug.LogWarning("No GridCell found with coordinates: " + coordinates);
         return null;
     }
 

@@ -171,13 +171,7 @@ public class ColoredBlock : MonoBehaviour
         previousLinkedBlock = null;
         path.Clear();
     }
-    private void OnMovingStarted(List<ColoredBlock> selectedblocks)
-    {
-        //if (selectedblocks.Contains(this))
-        //{
-        //    IsMoving = true;
-        //}
-    }
+    
     public void DisableDot()
     {
         dotCanvas.SetActive(false);
