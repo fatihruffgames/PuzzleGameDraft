@@ -38,5 +38,6 @@ public class CollectibleBoxController : BaseColoredClass
         });
         sequence.Play();
 
+        CollectibleContainer.instance.RemoveCollectible(this);
     }
 }

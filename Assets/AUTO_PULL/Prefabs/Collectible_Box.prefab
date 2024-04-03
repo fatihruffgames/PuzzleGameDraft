@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8502623932112759586}
   - component: {fileID: 1223788207525373938}
   - component: {fileID: 267525545047397311}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 8893621574666067346}
   - component: {fileID: 8893621574666067344}
   - component: {fileID: 1851430603097869250}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Collectible_Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,3 +159,4 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 2e2a21abcdf56ad409eee1987acd7536, type: 2}
   - {fileID: 2100000, guid: 6080fc484e5e9f8438b899e9556740c6, type: 2}
   IsLinked: 0
+  IsAboutToLinked: 0

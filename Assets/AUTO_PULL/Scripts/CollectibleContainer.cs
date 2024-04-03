@@ -12,7 +12,15 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
     {
         Collectibles.Add(collectible);
     }
+    public void RemoveCollectible(CollectibleBoxController collectible)
+    {
+        Collectibles.Remove(collectible);
 
+        if(Collectibles.Count == 0)
+        {
+            Debug.Log("LEVEL SUCCEEDED");
+        }
+    }
     public List<CollectibleBoxController> GetSameColorCollectibles(CollectibleColor color)
     {
         List<CollectibleBoxController> closestCollectibles = new List<CollectibleBoxController>();

@@ -5,9 +5,10 @@ using UnityEngine.EventSystems;
 public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
 {
     [Header("Config")]
-    [SerializeField] bool isTestinglevel;
+    [SerializeField] bool hasLimitlessMove;
+    [SerializeField] int maxMoveCount;
     [SerializeField] LayerMask groundLayer;
-    [SerializeField] int maxPlacementCount;
+    [SerializeField] LayerMask collectibleLayer;
 
     [Header("References")]
     [SerializeField] CollectCenter centerPrefab;
@@ -33,17 +34,19 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
                 Debug.Log("UI clicked");
                 return;
             }
-            if (currentPlacedCount >= maxPlacementCount && !isTestinglevel)
+            if (currentPlacedCount >= maxMoveCount && !hasLimitlessMove)
             {
                 Debug.LogWarning("Max placement count is reached");
 
                 GameManager.instance.OnTapRestart();
                 return;
             }
-
-            Collider hitCollider;
+            Vector3 _hitPosFirst;
+            if (HitDesiredObject(collectibleLayer, out _hitPosFirst)) return;
+             
+             
             Vector3 _hitPos;
-            if (HitDesiredObject(groundLayer, out hitCollider, out _hitPos))
+            if (HitDesiredObject(groundLayer, out _hitPos))
             {
                 CollectCenter cloneCenter = Instantiate(centerPrefab, _hitPos, Quaternion.identity);
                 cloneCenter.Initialize(selectedColor);
@@ -74,10 +77,9 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         return false;
     }
 
-    bool HitDesiredObject(LayerMask targetLayerMask, out Collider hitCollider, out Vector3 _hitPos)
+    bool HitDesiredObject(LayerMask targetLayerMask, out Vector3 _hitPos)
     {
         bool isHit = false;
-        hitCollider = null;
         _hitPos = Vector3.zero;
 
         RaycastHit hit;
@@ -86,7 +88,6 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         if (Physics.Raycast(ray, out hit, 300, targetLayerMask))
         {
             isHit = true;
-            hitCollider = hit.collider;
             _hitPos = hit.point;
         }
         return isHit;

@@ -44,11 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05c7ace713c7f2a4197d09b23ab00b85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTestinglevel: 1
+  hasLimitlessMove: 1
+  maxMoveCount: 4
   groundLayer:
     serializedVersion: 2
     m_Bits: 8192
-  maxPlacementCount: 3
+  collectibleLayer:
+    serializedVersion: 2
+    m_Bits: 16384
   centerPrefab: {fileID: 7690407454344998843, guid: 2e7341a624eb0a84ca9349f75dfc5a52,
     type: 3}
   currentPlacedCount: 0
