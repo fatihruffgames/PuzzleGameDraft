@@ -23,6 +23,7 @@ Material:
   m_Name: Background 1
   m_Shader: {fileID: 4800000, guid: 3345d728e902e3347b73a85bb79ccb1f, type: 3}
   m_ValidKeywords:
+  - _INVERT_CIRCLE_ON
   - _LITTOGGLE_ON
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -98,13 +99,13 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _AlphaCutoff: 0.5
-    - _Angle: 270
+    - _Angle: 229
     - _Blend: 0
     - _Blur: 1
     - _BumpScale: 1
     - _Circle_Blur: 1
-    - _Circle_Int: 1
-    - _Circle_Size: 0.64
+    - _Circle_Int: 0.462
+    - _Circle_Size: 0.36
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -118,7 +119,7 @@ Material:
     - _GlossyReflections: 0
     - _HeightOffset: 0
     - _HueSlider: 0
-    - _Invert_Circle: 0
+    - _Invert_Circle: 1
     - _LinearDouble: 0
     - _LitToggle: 1
     - _MainTex_Opacity: 0
@@ -146,11 +147,11 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Color1: {r: 0.5, g: 0.5, b: 0.5, a: 0}
-    - _Color2: {r: 0.7428729, g: 0.6884122, b: 0.990566, a: 0}
+    - _Color1: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 0}
+    - _Color2: {r: 0.3994749, g: 0.40825915, b: 0.4433962, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _SpecularColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
+    - _SpecularColor: {r: 0.01886791, g: 0.01860091, b: 0.01860091, a: 1}
     - _StartPosition: {r: 0, g: 0, b: 0, a: 0}
     - _UV: {r: 0, g: 0, b: 0, a: 0}
     - _Vector0: {r: 0, g: 0, b: 0, a: 0}

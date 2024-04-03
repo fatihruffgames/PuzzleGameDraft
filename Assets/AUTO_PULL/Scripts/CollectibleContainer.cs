@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class CollectibleContainer : MonoSingleton<CollectibleContainer>
 {
+    public event System.Action CollectibleListModifiedEvent;
+
     [Header("Debug")]
     public List<CollectibleBoxController> Collectibles = new List<CollectibleBoxController>();
-
+    public bool NoMoreCollectibleLeft;
 
     public void AddCollectible(CollectibleBoxController collectible)
     {
@@ -16,10 +18,17 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
     {
         Collectibles.Remove(collectible);
 
-        if(Collectibles.Count == 0)
+        if (Collectibles.Count == 0)
         {
-            Debug.Log("LEVEL SUCCEEDED");
+            NoMoreCollectibleLeft = true;
+            IEnumerator EndRoutine()
+            {
+                yield return new WaitForSeconds(1);
+                GameManager.instance.OnTapNext();
+            }
+            StartCoroutine(EndRoutine());
         }
+
     }
     public List<CollectibleBoxController> GetSameColorCollectibles(CollectibleColor color)
     {
@@ -41,5 +50,25 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
         }
 
         return closestCollectibles;
+    }
+
+    public List<CollectibleColor> GetColorEnumPool()
+    {
+        List<CollectibleColor> pool = new List<CollectibleColor>();
+        for (int i = 0; i < Collectibles.Count; i++)
+        {
+            CollectibleBoxController collectible = Collectibles[i];
+            if (!pool.Contains(collectible.GetColor()))
+            {
+                pool.Add(collectible.GetColor());
+            }
+        }
+
+        return pool;
+    }
+
+    public void TriggerCollectibleListModifiedEvent()
+    {
+        CollectibleListModifiedEvent?.Invoke();
     }
 }

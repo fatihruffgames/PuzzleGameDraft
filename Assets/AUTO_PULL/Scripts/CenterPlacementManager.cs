@@ -4,6 +4,8 @@ using UnityEngine.EventSystems;
 
 public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
 {
+    public event System.Action<CollectCenter> CollectCenterPlacedEvent;
+
     [Header("Config")]
     [SerializeField] bool hasLimitlessMove;
     [SerializeField] int maxMoveCount;
@@ -22,7 +24,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
     {
         yield return null;
 
-        isInitialized = true;   
+        isInitialized = true;
     }
     private void Update()
     {
@@ -43,13 +45,14 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
             }
             Vector3 _hitPosFirst;
             if (HitDesiredObject(collectibleLayer, out _hitPosFirst)) return;
-             
-             
+
+
             Vector3 _hitPos;
             if (HitDesiredObject(groundLayer, out _hitPos))
             {
                 CollectCenter cloneCenter = Instantiate(centerPrefab, _hitPos, Quaternion.identity);
                 cloneCenter.Initialize(selectedColor);
+                CollectCenterPlacedEvent?.Invoke(cloneCenter);
                 currentPlacedCount++;
             }
         }
@@ -69,8 +72,8 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         if (currentSelected != null)
         {
             CanvasManager canvasManager = CanvasManager.instance;
-            return currentSelected == canvasManager.changeColorButton.gameObject ||
-                   currentSelected == canvasManager.RestartButton.gameObject ||
+            return currentSelected == canvasManager.BlockerObject ||
+                currentSelected == canvasManager.RestartButton.gameObject ||
                    currentSelected == canvasManager.NextButton.gameObject;
         }
 

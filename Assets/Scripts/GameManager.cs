@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoSingleton<GameManager>
 {
     public event System.Action LevelChangedEvent;
+    public event System.Action LevelEndedEvent;
 
     [SerializeField] int totalSceneCount;
 
@@ -48,16 +49,18 @@ public class GameManager : MonoSingleton<GameManager>
 
     public void OnTapRestart()
     {
+        LevelEndedEvent?.Invoke();
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     public void OnTapNext()
     {
+        LevelEndedEvent?.Invoke();
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
         int nextScene = currentSceneIndex + 1;
 
         if (nextScene >= totalSceneCount) nextScene = 0;
-
         SceneManager.LoadScene(nextScene);
+
     }
     /// <summary>
     /// //////////////

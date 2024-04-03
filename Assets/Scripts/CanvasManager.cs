@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,52 +7,79 @@ using UnityEngine.UI;
 public class CanvasManager : MonoSingleton<CanvasManager>
 {
     [Header("References")]
-    public Button changeColorButton;
+    public GameObject BlockerObject;
     public Button RestartButton;
     public Button NextButton;
-    [SerializeField] Image buttonBG;
     [SerializeField] TextMeshProUGUI colorText;
+    [SerializeField] List<ColorDotHandler> colorDots;
 
     [Header("Config")]
-    [SerializeField] List<Color> colors;
-    [SerializeField] List<Material> colorMats;
+    [SerializeField] List<ColorWrapperInfo> colorWrappers;
 
     [Header("Debug")]
-    [SerializeField] CollectibleColor currentColor;
+    [SerializeField] CollectibleColor currentColorEnum;
 
-    private void Start()
+
+    IEnumerator Start()
     {
-        OnChangeColor();
+        CollectibleContainer.instance.CollectibleListModifiedEvent += OnCollectibleListModifiedEvent;
+
+        yield return null;
+
+        ColorAssign(isInit: true);
     }
 
-    public void OnChangeColor()
-    {
-        int numColors = System.Enum.GetValues(typeof(CollectibleColor)).Length;
-        currentColor = (CollectibleColor)(((int)currentColor + 1) % numColors);
 
-        if (currentColor == CollectibleColor.NONE)
+
+    public void ColorAssign(bool isInit)
+    {
+        if (CollectibleContainer.instance.NoMoreCollectibleLeft) return;
+
+        List<CollectibleColor> colorPool = CollectibleContainer.instance.GetColorEnumPool();
+        ColorWrapperInfo currentWrapper;
+
+        if (!isInit)
         {
-            currentColor = (CollectibleColor)(((int)currentColor + 1) % numColors);
+            currentWrapper = colorDots[1].GetWrapper();
+            while (!colorPool.Contains(currentWrapper.colorEnum))
+            {
+                currentWrapper = GetRandomAvailableWrapper();
+            }
         }
+        else
+            currentWrapper = GetRandomAvailableWrapper();
 
-        UpdateColorText();
-        UpdateButtonColor();
+        ColorWrapperInfo nextWrapper = GetRandomAvailableWrapper();
 
-        CenterPlacementManager.instance.SetSelectedColor(currentColor);
+        colorDots[0].SetWrapperInfo(currentWrapper);
+        colorDots[1].SetWrapperInfo(nextWrapper);
+
+        currentColorEnum = currentWrapper.colorEnum;
+        CenterPlacementManager.instance.SetSelectedColor(currentColorEnum);
+
     }
 
-    private void UpdateColorText()
+    private void OnCollectibleListModifiedEvent()
     {
-        colorText.text = "CURRENT: " + currentColor.ToString();
+        ColorAssign(isInit: false);
     }
 
-    private void UpdateButtonColor()
+    #region COMPLETED REGION
+
+    public ColorWrapperInfo GetRandomAvailableWrapper()
     {
-        int colorIndex = (int)currentColor;
-        buttonBG.material.color = colors[colorIndex - 1];
+        List<CollectibleColor> colorPool = CollectibleContainer.instance.GetColorEnumPool();
+
+        int randomIndex = Random.Range(0, colorPool.Count); // Generating random index
+        CollectibleColor targetColorEnum = colorPool[randomIndex];
+
+        for (int i = 0; i < colorWrappers.Count; i++)
+        {
+            if (targetColorEnum == colorWrappers[i].colorEnum)
+                return colorWrappers[i];
+        }
+        return null;
     }
-
-
     public void OnRestart()
     {
         GameManager.instance.OnTapRestart();
@@ -62,4 +90,16 @@ public class CanvasManager : MonoSingleton<CanvasManager>
         GameManager.instance.OnTapNext();
     }
 
+    #endregion
 }
+
+[System.Serializable]
+public class ColorWrapperInfo
+{
+    public CollectibleColor colorEnum;
+    public Material material;
+}
+//// Example usage:
+//currentColorEnum = CollectibleColor.RED;
+//Material assignedMaterial = colorMap[currentColorEnum];
+//// Use assignedMaterial as needed

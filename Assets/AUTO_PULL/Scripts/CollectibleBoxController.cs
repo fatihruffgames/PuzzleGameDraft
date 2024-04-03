@@ -15,6 +15,17 @@ public class CollectibleBoxController : BaseColoredClass
         CollectibleContainer.instance.AddCollectible(this);
         int index = CollectibleContainer.instance.Collectibles.IndexOf(this);
         gameObject.name = color.ToString() + "_" + index;
+
+        GameManager.instance.LevelEndedEvent += OnLevelEnded;
+    }
+
+    private void OnLevelEnded()
+    {
+        // Stop the sequence if it's playing
+        if (sequence != null && sequence.IsPlaying())
+        {
+            sequence.Kill(); // Stop the sequence
+        }
     }
 
     public void SetIsAboutToLinked(bool _isAboutToLinked)
@@ -26,18 +37,21 @@ public class CollectibleBoxController : BaseColoredClass
     {
         IsLinked = true;
     }
-
+    private Sequence sequence;
     public void GetCollected(float duration, Vector3 targetCenter)
     {
-        Sequence sequence = DOTween.Sequence();
+        sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetCenter, duration));
-        sequence.Join(transform.DOScale(Vector3.zero, duration * 2 ));
+        sequence.Join(transform.DOScale(Vector3.zero, duration * 2));
         sequence.OnComplete(() =>
         {
+            GameManager.instance.LevelEndedEvent -= OnLevelEnded;
             Destroy(gameObject, .1f);
         });
         sequence.Play();
 
         CollectibleContainer.instance.RemoveCollectible(this);
+
+
     }
 }

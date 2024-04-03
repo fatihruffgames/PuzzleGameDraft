@@ -5,19 +5,33 @@ using UnityEngine;
 public class LinkerRope : MonoBehaviour
 {
     [Header("Config")]
-    [SerializeField] float delay;
+    [SerializeField] float movingDelay;
+    [SerializeField] int maxDistanceThreshold;
 
     [Header("Debug")]
     public bool PerformedMoving;
-    [SerializeField] const int maxDistanceThreshold = 4;
     [SerializeField] CollectibleBoxController targetCollectible;
+
+    private void Start()
+    {
+        GameManager.instance.LevelEndedEvent += OnLevelEnded;
+    }
+
+    private void OnLevelEnded()
+    {
+        if (reverseTween != null && reverseTween.IsPlaying())
+        {
+            reverseTween.Kill();
+
+        }
+    }
 
     public void SetScale(CollectibleBoxController target, int index)
     {
         targetCollectible = target;
         IEnumerator Routine()
         {
-            yield return new WaitForSeconds(index * delay);
+            yield return new WaitForSeconds(/*index **/ movingDelay);
             float distance = Vector3.Distance(target.transform.position, transform.position);
             Vector3 dir = (target.transform.position - transform.position).normalized;
             transform.up = dir;
@@ -47,15 +61,17 @@ public class LinkerRope : MonoBehaviour
     }
 
     bool reverseCollectingInvoked;
+    Tween reverseTween;
     public void ReverseCollecting(float duration)
     {
         if (reverseCollectingInvoked) return;
         reverseCollectingInvoked = true;
 
-        transform.DOScaleY(0, duration).OnComplete(() =>
-        {
-            Destroy(gameObject);
-        });
+        reverseTween = transform.DOScaleY(0, duration).OnComplete(() =>
+          {
+              GameManager.instance.LevelEndedEvent -= OnLevelEnded;
+              Destroy(gameObject);
+          });
     }
 
 

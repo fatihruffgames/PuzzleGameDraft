@@ -8,9 +8,25 @@ public class CollectCenter : BaseColoredClass
     [Header("Config")]
     [SerializeField] LinkerRope ropePrefab;
     [SerializeField] float collectDuration;
+    Tween scalingTween;
+    public float maxDistance;
 
     [Header("Debug")]
     [SerializeField] List<CollectibleBoxController> sameColoredCollectibles;
+
+
+    private void Start()
+    {
+        GameManager.instance.LevelEndedEvent += OnLevelEnded;
+    }
+
+    private void OnLevelEnded()
+    {
+        if (scalingTween != null && scalingTween.IsPlaying())
+        {
+            scalingTween.Kill();
+        }
+    }
 
     public void Initialize(CollectibleColor collectibleColor)
     {
@@ -23,6 +39,10 @@ public class CollectCenter : BaseColoredClass
         sameColoredCollectibles.AddRange(CollectibleContainer.instance.GetSameColorCollectibles(color));
         for (int i = 0; i < sameColoredCollectibles.Count; i++)
         {
+            float distance = Vector3.Distance(sameColoredCollectibles[i].transform.position, transform.position);
+            if (distance > maxDistance) continue;
+            
+
             sameColoredCollectibles[i].SetIsAboutToLinked(true);
             SpawnRope(sameColoredCollectibles[i], index: i);
         }
@@ -48,7 +68,6 @@ public class CollectCenter : BaseColoredClass
         cloneRope.SetScale(target, index);
     }
 
-
     bool AllRopesPerformedMoving(LinkerRope[] linkerRopes)
     {
         for (int i = 0; i < linkerRopes.Length; i++)
@@ -69,7 +88,6 @@ public class CollectCenter : BaseColoredClass
             linkerRope.ReverseCollecting(collectDuration);
         }
 
-
         for (int i = 0; i < sameColoredCollectibles.Count; i++)
         {
             CollectibleBoxController collectible = sameColoredCollectibles[i];
@@ -78,12 +96,13 @@ public class CollectCenter : BaseColoredClass
 
         }
 
-
         sameColoredCollectibles.Clear();
-        transform.DOScale(Vector3.zero, .5f).SetDelay(.5f).OnComplete(() =>
-        {
-            Destroy(gameObject, 0.1f);
-        });
+        CollectibleContainer.instance.TriggerCollectibleListModifiedEvent();
+        scalingTween = transform.DOScale(Vector3.zero, .5f).SetDelay(.5f).OnComplete(() =>
+           {
+               GameManager.instance.LevelEndedEvent -= OnLevelEnded;
+               Destroy(gameObject, 0.1f);
+           });
     }
 
 

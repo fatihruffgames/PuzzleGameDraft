@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1ce6f17002c235448e82c6846eacf69, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalSceneCount: 4
+  totalSceneCount: 3
   totalBlockCount: 0
   fallenBlocks: 0
   currentInfoIndex: 0

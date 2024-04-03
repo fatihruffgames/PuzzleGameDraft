@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/AUTO_PULL/Scenes/AutoPull_Template.unity
-    guid: d8b336d96df40bb47865788c56d0a944
+    path: Assets/AUTO_PULL/Scenes/AutoPull_Level_01.unity
+    guid: 3c2aad3cc05360d4398b7eab4d329036
+  - enabled: 1
+    path: Assets/AUTO_PULL/Scenes/AutoPull_Level_02.unity
+    guid: 479c61461e5b4754e9429df1d4c0baa7
+  - enabled: 1
+    path: Assets/AUTO_PULL/Scenes/AutoPull_Level_03.unity
+    guid: c9032ec00311342428b0f7078a9dab78
   m_configObjects: {}

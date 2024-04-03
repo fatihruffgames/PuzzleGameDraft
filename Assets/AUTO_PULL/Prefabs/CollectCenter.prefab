@@ -79,6 +79,7 @@ MonoBehaviour:
   ropePrefab: {fileID: 2273788618847043838, guid: 07a23e6c082360d49a52dd676ec69ea2,
     type: 3}
   collectDuration: 0.25
+  maxDistance: 6.5
   sameColoredCollectibles: []
 --- !u!1 &6851266925736088809
 GameObject:
@@ -181,4 +182,5 @@ MonoBehaviour:
   colorMats: []
   ropePrefab: {fileID: 0}
   collectDuration: 0
+  maxDistance: 0
   sameColoredCollectibles: []
