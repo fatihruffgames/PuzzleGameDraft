@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ColorDotHandler : MonoBehaviour
 {
@@ -8,7 +7,7 @@ public class ColorDotHandler : MonoBehaviour
     [SerializeField] TextMeshProUGUI _text;
 
     public ColorWrapperInfo colorWrapperInfo;
-  
+
     public void SetWrapperInfo(ColorWrapperInfo newWrapper)
     {
         colorWrapperInfo = newWrapper;
@@ -17,7 +16,7 @@ public class ColorDotHandler : MonoBehaviour
     void SetMaterialAndEnum(Material newMat, CollectibleColor _colorEnum)
     {
         _material.color = newMat.color;
-      //  _text.text = colorWrapperInfo.colorEnum.ToString();
+        //  _text.text = colorWrapperInfo.colorEnum.ToString();
     }
 
     public ColorWrapperInfo GetWrapper()

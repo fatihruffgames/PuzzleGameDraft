@@ -12,7 +12,7 @@ public class CollectCenter : BaseColoredClass
     public float maxDistance;
 
     [Header("Debug")]
-    [SerializeField] List<CollectibleBoxController> sameColoredCollectibles;
+    [SerializeField] List<CollectibleController> sameColoredCollectibles;
 
 
     private void Start()
@@ -39,9 +39,10 @@ public class CollectCenter : BaseColoredClass
         sameColoredCollectibles.AddRange(CollectibleContainer.instance.GetSameColorCollectibles(color));
         for (int i = 0; i < sameColoredCollectibles.Count; i++)
         {
-            float distance = Vector3.Distance(sameColoredCollectibles[i].transform.position, transform.position);
-            if (distance > maxDistance) continue;
-            
+            #region Distance Cheking Region
+            //float distance = Vector3.Distance(sameColoredCollectibles[i].transform.position, transform.position);
+            //if (distance > maxDistance) continue;
+            #endregion
 
             sameColoredCollectibles[i].SetIsAboutToLinked(true);
             SpawnRope(sameColoredCollectibles[i], index: i);
@@ -61,11 +62,11 @@ public class CollectCenter : BaseColoredClass
         StartCoroutine(CheckingRoutine());
     }
 
-    void SpawnRope(CollectibleBoxController target, int index)
+    void SpawnRope(CollectibleController target, int index)
     {
         LinkerRope cloneRope = Instantiate(ropePrefab, transform.position, Quaternion.identity, transform);
 
-        cloneRope.SetScale(target, index);
+        cloneRope.SetScale(target, index, this);
     }
 
     bool AllRopesPerformedMoving(LinkerRope[] linkerRopes)
@@ -78,11 +79,21 @@ public class CollectCenter : BaseColoredClass
         return true;
     }
 
-
-    void TriggerReverseCollecting()
+    public void DisableAllRopes()
     {
         LinkerRope[] linkerRopes = GetComponentsInChildren<LinkerRope>();
         for (int i = 0; i < linkerRopes.Length; i++)
+        {
+            LinkerRope linkerRope = linkerRopes[i];
+            if (linkerRope != null && linkerRope.gameObject.activeInHierarchy)
+                linkerRope.Disable();
+        }
+    }
+    void TriggerReverseCollecting()
+    {
+        LinkerRope[] linkerRopes = GetComponentsInChildren<LinkerRope>();
+        int succeededRopeCount = linkerRopes.Length;
+        for (int i = 0; i < succeededRopeCount; i++)
         {
             LinkerRope linkerRope = linkerRopes[i];
             linkerRope.ReverseCollecting(collectDuration);
@@ -90,16 +101,16 @@ public class CollectCenter : BaseColoredClass
 
         for (int i = 0; i < sameColoredCollectibles.Count; i++)
         {
-            CollectibleBoxController collectible = sameColoredCollectibles[i];
+            CollectibleController collectible = sameColoredCollectibles[i];
             if (collectible.IsLinked)
                 collectible.GetCollected(collectDuration, transform.position);
 
         }
 
         sameColoredCollectibles.Clear();
-        CollectibleContainer.instance.TriggerCollectibleListModifiedEvent();
         scalingTween = transform.DOScale(Vector3.zero, .5f).SetDelay(.5f).OnComplete(() =>
            {
+               CollectibleContainer.instance.TriggerCollectibleListModifiedEvent(collectedCount: succeededRopeCount);
                GameManager.instance.LevelEndedEvent -= OnLevelEnded;
                Destroy(gameObject, 0.1f);
            });

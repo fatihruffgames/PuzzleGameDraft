@@ -2,14 +2,12 @@ using DG.Tweening;
 using UnityEngine;
 
 
-public class CollectibleBoxController : BaseColoredClass
+public class CollectibleController : BaseColoredClass
 {
     public bool IsLinked;
     public bool IsAboutToLinked;
-    private void Awake()
-    {
-        SetColor();
-    }
+    public bool CanBeCollected;
+
     private void Start()
     {
         CollectibleContainer.instance.AddCollectible(this);
@@ -18,7 +16,22 @@ public class CollectibleBoxController : BaseColoredClass
 
         GameManager.instance.LevelEndedEvent += OnLevelEnded;
     }
+    public void Initialize()
+    {
 
+        transform.DOScale(transform.localScale, .5f).From(Vector3.zero).OnComplete(() =>
+        {
+            CanBeCollected = true;
+        });
+
+        int maxEnum = System.Enum.GetValues(typeof(CollectibleColor)).Length;
+        int randomValue = Random.Range(1, maxEnum);
+
+        CollectibleColor randomColor = (CollectibleColor)randomValue;
+        color = randomColor;
+
+        SetColor();
+    }
     private void OnLevelEnded()
     {
         // Stop the sequence if it's playing
@@ -40,6 +53,8 @@ public class CollectibleBoxController : BaseColoredClass
     private Sequence sequence;
     public void GetCollected(float duration, Vector3 targetCenter)
     {
+        SpawnManager.instance.RemoveFromList(transform);
+        CanvasManager.instance.SetProgress();
         sequence = DOTween.Sequence();
         sequence.Append(transform.DOMove(targetCenter, duration));
         sequence.Join(transform.DOScale(Vector3.zero, duration * 2));
@@ -51,7 +66,22 @@ public class CollectibleBoxController : BaseColoredClass
         sequence.Play();
 
         CollectibleContainer.instance.RemoveCollectible(this);
+    }
+
+    public bool CheckIfCanCollected(CollectibleColor collecCenterColor)
+    {
+        bool canCollected;
+
+        if (!CanBeCollected) canCollected = false;
+        else
+        {
+            if (!IsAboutToLinked && !IsLinked && collecCenterColor == color)
+                canCollected = true;
+            else
+                canCollected = false;
+        }
 
 
+        return canCollected;
     }
 }

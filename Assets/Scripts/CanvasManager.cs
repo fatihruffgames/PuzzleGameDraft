@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,8 @@ public class CanvasManager : MonoSingleton<CanvasManager>
     public GameObject BlockerObject;
     public Button RestartButton;
     public Button NextButton;
-    [SerializeField] TextMeshProUGUI colorText;
+    [SerializeField] CanvasGroup failPanel;
+    [SerializeField] TextMeshProUGUI moveCountText;
     [SerializeField] List<ColorDotHandler> colorDots;
 
     [Header("Config")]
@@ -18,19 +20,31 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 
     [Header("Debug")]
     [SerializeField] CollectibleColor currentColorEnum;
-
+    [HideInInspector] public ProgressBarManager progressBarManager;
 
     IEnumerator Start()
     {
         CollectibleContainer.instance.CollectibleListModifiedEvent += OnCollectibleListModifiedEvent;
-
+        GameManager.instance.LevelFailedEvent += OnLevelFailed;
+        progressBarManager = GetComponentInChildren<ProgressBarManager>();
         yield return null;
 
         ColorAssign(isInit: true);
     }
 
+    private void OnLevelFailed()
+    {
+        failPanel.DOFade(1, .5f);
+    }
 
-
+    public void SetProgress()
+    {
+        progressBarManager.IncrementCollectedCount();
+    }
+    public void SetMoveCountText(int leftMoveCount)
+    {
+        moveCountText.text = "Move Count: " + leftMoveCount.ToString();
+    }
     public void ColorAssign(bool isInit)
     {
         if (CollectibleContainer.instance.NoMoreCollectibleLeft) return;
@@ -41,15 +55,16 @@ public class CanvasManager : MonoSingleton<CanvasManager>
         if (!isInit)
         {
             currentWrapper = colorDots[1].GetWrapper();
-            while (!colorPool.Contains(currentWrapper.colorEnum))
-            {
-                currentWrapper = GetRandomAvailableWrapper();
-            }
+            /*  while (!colorPool.Contains(currentWrapper.colorEnum))
+              {
+                  currentWrapper = GetRandomAvailableWrapper();
+              }*/
+
         }
         else
-            currentWrapper = GetRandomAvailableWrapper();
+            currentWrapper = GetFullyRandomWrapper();
 
-        ColorWrapperInfo nextWrapper = GetRandomAvailableWrapper();
+        ColorWrapperInfo nextWrapper = GetFullyRandomWrapper();
 
         colorDots[0].SetWrapperInfo(currentWrapper);
         colorDots[1].SetWrapperInfo(nextWrapper);
@@ -59,7 +74,7 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 
     }
 
-    private void OnCollectibleListModifiedEvent()
+    private void OnCollectibleListModifiedEvent(int _)
     {
         ColorAssign(isInit: false);
     }
@@ -80,6 +95,12 @@ public class CanvasManager : MonoSingleton<CanvasManager>
         }
         return null;
     }
+
+    public ColorWrapperInfo GetFullyRandomWrapper()
+    {
+        int randomIndex = Random.Range(0, colorWrappers.Count); // Generating random 
+        return colorWrappers[randomIndex];
+    }
     public void OnRestart()
     {
         GameManager.instance.OnTapRestart();
@@ -99,7 +120,3 @@ public class ColorWrapperInfo
     public CollectibleColor colorEnum;
     public Material material;
 }
-//// Example usage:
-//currentColorEnum = CollectibleColor.RED;
-//Material assignedMaterial = colorMap[currentColorEnum];
-//// Use assignedMaterial as needed
