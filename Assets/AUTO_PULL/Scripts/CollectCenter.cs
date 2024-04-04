@@ -91,6 +91,8 @@ public class CollectCenter : BaseColoredClass
     }
     void TriggerReverseCollecting()
     {
+
+
         LinkerRope[] linkerRopes = GetComponentsInChildren<LinkerRope>();
         int succeededRopeCount = linkerRopes.Length;
         for (int i = 0; i < succeededRopeCount; i++)
@@ -106,11 +108,13 @@ public class CollectCenter : BaseColoredClass
                 collectible.GetCollected(collectDuration, transform.position);
 
         }
-
+        CanvasManager.instance.AssignDotsColor();
         sameColoredCollectibles.Clear();
         scalingTween = transform.DOScale(Vector3.zero, .5f).SetDelay(.5f).OnComplete(() =>
            {
-               CollectibleContainer.instance.TriggerCollectibleListModifiedEvent(collectedCount: succeededRopeCount);
+               if (GameManager.instance.isLevelActive)
+                   CollectibleContainer.instance.TriggerCollectibleListModifiedEvent(collectedCount: succeededRopeCount);
+
                GameManager.instance.LevelEndedEvent -= OnLevelEnded;
                Destroy(gameObject, 0.1f);
            });

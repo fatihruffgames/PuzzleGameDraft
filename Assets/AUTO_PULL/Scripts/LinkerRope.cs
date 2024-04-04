@@ -5,6 +5,10 @@ using UnityEngine;
 public class LinkerRope : MonoBehaviour
 {
     [Header("Config")]
+    [SerializeField] Transform popUpPos;
+    [SerializeField] PopUpCanvasController popUpCanvasPrefab;
+
+    [Header("Config")]
     [SerializeField] float movingDelay;
     [SerializeField] int maxDistanceThreshold;
 
@@ -106,16 +110,19 @@ public class LinkerRope : MonoBehaviour
         if (PerformedMoving) return;
         if (targetCollectible == null) return;
         if (!other.TryGetComponent(out CollectibleController collectible)) return;
+        if (!collectible.CanBeCollected) return;
         if (targetCollectible == collectible) return;
 
-        StopTween();
+        OnHitOtherCollectibles();
     }
     public void Disable()
     {
         mesh.SetActive(false);
     }
-    private void StopTween()
+    private void OnHitOtherCollectibles()
     {
+        Instantiate(popUpCanvasPrefab, popUpPos.position, Quaternion.identity);
+
         PerformedMoving = true;
         targetCollectible.SetIsAboutToLinked(false);
         transform.DOKill(); // Stop all ongoing tweens on this object

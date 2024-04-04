@@ -24,7 +24,7 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 
     IEnumerator Start()
     {
-        CollectibleContainer.instance.CollectibleListModifiedEvent += OnCollectibleListModifiedEvent;
+       // CollectibleContainer.instance.CollectibleListModifiedEvent += OnCollectibleListModifiedEvent;
         GameManager.instance.LevelFailedEvent += OnLevelFailed;
         progressBarManager = GetComponentInChildren<ProgressBarManager>();
         yield return null;
@@ -74,7 +74,7 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 
     }
 
-    private void OnCollectibleListModifiedEvent(int _)
+    public void AssignDotsColor()
     {
         ColorAssign(isInit: false);
     }
