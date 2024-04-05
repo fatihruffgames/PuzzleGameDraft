@@ -119,4 +119,5 @@ public class ColorWrapperInfo
 {
     public CollectibleColor colorEnum;
     public Material material;
+    public Sprite sprite; 
 }

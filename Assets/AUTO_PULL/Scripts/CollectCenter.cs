@@ -30,7 +30,8 @@ public class CollectCenter : BaseColoredClass
 
     public void Initialize(CollectibleColor collectibleColor)
     {
-        SetColor(collectibleColor);
+        //SetColor(collectibleColor);
+        SetMesh(collectibleColor);
         PerformCollecting();
     }
 

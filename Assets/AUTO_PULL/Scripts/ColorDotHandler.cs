@@ -1,22 +1,22 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ColorDotHandler : MonoBehaviour
 {
-    [SerializeField] Material _material;
     [SerializeField] TextMeshProUGUI _text;
+    [SerializeField] Image image;
 
     public ColorWrapperInfo colorWrapperInfo;
 
     public void SetWrapperInfo(ColorWrapperInfo newWrapper)
     {
         colorWrapperInfo = newWrapper;
-        SetMaterialAndEnum(colorWrapperInfo.material, colorWrapperInfo.colorEnum);
+        SetMaterialAndEnum(  colorWrapperInfo.colorEnum, colorWrapperInfo.sprite);
     }
-    void SetMaterialAndEnum(Material newMat, CollectibleColor _colorEnum)
-    {
-        _material.color = newMat.color;
-        //  _text.text = colorWrapperInfo.colorEnum.ToString();
+    void SetMaterialAndEnum( CollectibleColor _colorEnum, Sprite sprite = null)
+    { 
+        image.sprite = sprite;
     }
 
     public ColorWrapperInfo GetWrapper()

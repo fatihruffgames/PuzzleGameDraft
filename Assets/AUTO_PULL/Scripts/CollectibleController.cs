@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -15,7 +16,17 @@ public class CollectibleController : BaseColoredClass
         gameObject.name = color.ToString() + "_" + index;
 
         GameManager.instance.LevelEndedEvent += OnLevelEnded;
+
+        AssignRandomYRotation();
     }
+
+    private void AssignRandomYRotation()
+    {
+        float randomYRotation = Random.Range(0f, 360f);
+        Quaternion randomRotation = Quaternion.Euler(0f, randomYRotation, 0f);
+        transform.rotation = randomRotation;
+    }
+
     public void Initialize()
     {
 
@@ -30,8 +41,9 @@ public class CollectibleController : BaseColoredClass
         CollectibleColor randomColor = (CollectibleColor)randomValue;
         color = randomColor;
 
-        SetColor();
+        SetMesh(color);
     }
+
     private void OnLevelEnded()
     {
         // Stop the sequence if it's playing
