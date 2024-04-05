@@ -7,7 +7,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
     public event System.Action<CollectCenter> CollectCenterPlacedEvent;
 
     [Header("Layer Masks")]
-    [SerializeField] LayerMask groundLayer;
+    public LayerMask groundLayer;
     [SerializeField] LayerMask collectibleLayer;
     [SerializeField] LayerMask obstacleLayer;
 
@@ -92,7 +92,8 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         return false;
     }
 
-    bool HitSpecifiedObject(LayerMask targetLayerMask, out Vector3 _hitPos)
+
+    public bool HitSpecifiedObject(LayerMask targetLayerMask, out Vector3 _hitPos)
     {
         bool isHit = false;
         _hitPos = Vector3.zero;
