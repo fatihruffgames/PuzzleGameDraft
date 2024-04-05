@@ -6,11 +6,14 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
 {
     public event System.Action<CollectCenter> CollectCenterPlacedEvent;
 
+    [Header("Layer Masks")]
+    [SerializeField] LayerMask groundLayer;
+    [SerializeField] LayerMask collectibleLayer;
+    [SerializeField] LayerMask obstacleLayer;
+
     [Header("Config")]
     [SerializeField] bool hasLimitlessMove;
     [SerializeField] int maxMoveCount;
-    [SerializeField] LayerMask groundLayer;
-    [SerializeField] LayerMask collectibleLayer;
 
     [Header("References")]
     [SerializeField] CollectCenter centerPrefab;
@@ -22,12 +25,15 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
 
     IEnumerator Start()
     {
+        CanvasManager.instance.SetMoveCountText(maxMoveCount - currentPlacedCount);
         yield return null;
 
         isInitialized = true;
     }
     private void Update()
     {
+        if (!GameManager.instance.isLevelActive) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             if (!isInitialized) return;
@@ -36,28 +42,33 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
                 Debug.Log("UI clicked");
                 return;
             }
-            if (currentPlacedCount >= maxMoveCount && !hasLimitlessMove)
-            {
-                Debug.LogWarning("Max placement count is reached");
-
-                GameManager.instance.OnTapRestart();
-                return;
-            }
-            Vector3 _hitPosFirst;
-            if (HitDesiredObject(collectibleLayer, out _hitPosFirst)) return;
+            Vector3 _;
+            Vector3 __;
+            if (HitSpecifiedObject(collectibleLayer, out _)) return;
+            if (HitSpecifiedObject(obstacleLayer, out __)) return;
 
 
             Vector3 _hitPos;
-            if (HitDesiredObject(groundLayer, out _hitPos))
+            if (HitSpecifiedObject(groundLayer, out _hitPos))
             {
                 CollectCenter cloneCenter = Instantiate(centerPrefab, _hitPos, Quaternion.identity);
                 cloneCenter.Initialize(selectedColor);
                 CollectCenterPlacedEvent?.Invoke(cloneCenter);
-                currentPlacedCount++;
+                HandleMoveCountLogic();
             }
         }
     }
 
+    private void HandleMoveCountLogic()
+    {
+        currentPlacedCount++;
+        CanvasManager.instance.SetMoveCountText(maxMoveCount - currentPlacedCount);
+        if (currentPlacedCount >= maxMoveCount && !hasLimitlessMove)
+        {
+            Debug.LogWarning("Max placement count is reached");
+            GameManager.instance.OnNoMoveLeft();
+        }
+    }
 
     public void SetSelectedColor(CollectibleColor _color)
     {
@@ -80,7 +91,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         return false;
     }
 
-    bool HitDesiredObject(LayerMask targetLayerMask, out Vector3 _hitPos)
+    bool HitSpecifiedObject(LayerMask targetLayerMask, out Vector3 _hitPos)
     {
         bool isHit = false;
         _hitPos = Vector3.zero;

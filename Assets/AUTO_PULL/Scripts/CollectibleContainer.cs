@@ -1,38 +1,32 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CollectibleContainer : MonoSingleton<CollectibleContainer>
 {
-    public event System.Action CollectibleListModifiedEvent;
+    public event System.Action<int> CollectibleListModifiedEvent;
 
     [Header("Debug")]
-    public List<CollectibleBoxController> Collectibles = new List<CollectibleBoxController>();
+    public List<CollectibleController> Collectibles = new List<CollectibleController>();
     public bool NoMoreCollectibleLeft;
 
-    public void AddCollectible(CollectibleBoxController collectible)
+    public void AddCollectible(CollectibleController collectible)
     {
         Collectibles.Add(collectible);
     }
-    public void RemoveCollectible(CollectibleBoxController collectible)
+    public void RemoveCollectible(CollectibleController collectible)
     {
         Collectibles.Remove(collectible);
 
-        if (Collectibles.Count == 0)
-        {
-            NoMoreCollectibleLeft = true;
-            IEnumerator EndRoutine()
-            {
-                yield return new WaitForSeconds(1);
-                GameManager.instance.OnTapNext();
-            }
-            StartCoroutine(EndRoutine());
-        }
+        /* if (Collectibles.Count == 0)
+         {
+             NoMoreCollectibleLeft = true;
+             GameManager.instance.EndGame(success: true, delayAsSeconds: 1);
+         }*/
 
     }
-    public List<CollectibleBoxController> GetSameColorCollectibles(CollectibleColor color)
+    public List<CollectibleController> GetSameColorCollectibles(CollectibleColor color)
     {
-        List<CollectibleBoxController> closestCollectibles = new List<CollectibleBoxController>();
+        List<CollectibleController> closestCollectibles = new List<CollectibleController>();
 
         if (Collectibles.Count == 0)
         {
@@ -42,8 +36,8 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
 
         for (int i = 0; i < Collectibles.Count; i++)
         {
-            CollectibleBoxController collectible = Collectibles[i];
-            if (collectible.GetColor() == color && !collectible.IsAboutToLinked && !collectible.IsLinked)
+            CollectibleController collectible = Collectibles[i];
+            if (collectible.CheckIfCanCollected(color))
             {
                 closestCollectibles.Add(collectible);
             }
@@ -57,7 +51,7 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
         List<CollectibleColor> pool = new List<CollectibleColor>();
         for (int i = 0; i < Collectibles.Count; i++)
         {
-            CollectibleBoxController collectible = Collectibles[i];
+            CollectibleController collectible = Collectibles[i];
             if (!pool.Contains(collectible.GetColor()))
             {
                 pool.Add(collectible.GetColor());
@@ -67,8 +61,8 @@ public class CollectibleContainer : MonoSingleton<CollectibleContainer>
         return pool;
     }
 
-    public void TriggerCollectibleListModifiedEvent()
+    public void TriggerCollectibleListModifiedEvent(int collectedCount)
     {
-        CollectibleListModifiedEvent?.Invoke();
+        CollectibleListModifiedEvent?.Invoke(collectedCount);
     }
 }

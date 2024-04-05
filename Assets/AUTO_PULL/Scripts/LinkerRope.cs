@@ -5,29 +5,43 @@ using UnityEngine;
 public class LinkerRope : MonoBehaviour
 {
     [Header("Config")]
+    [SerializeField] Transform popUpPos;
+    [SerializeField] PopUpCanvasController popUpCanvasPrefab;
+
+    [Header("Config")]
     [SerializeField] float movingDelay;
     [SerializeField] int maxDistanceThreshold;
 
     [Header("Debug")]
     public bool PerformedMoving;
-    [SerializeField] CollectibleBoxController targetCollectible;
-
+    [SerializeField] CollectibleController targetCollectible;
+    bool reverseCollectingInvoked;
+    Tween reverseTween;
+    Tween scalingTween;
+    CollectCenter myCenter;
+    GameObject mesh;
     private void Start()
     {
+        mesh = transform.GetChild(0).gameObject;
         GameManager.instance.LevelEndedEvent += OnLevelEnded;
     }
 
     private void OnLevelEnded()
     {
+        KillAllAssignedTweens();
+    }
+
+    private void KillAllAssignedTweens()
+    {
         if (reverseTween != null && reverseTween.IsPlaying())
         {
             reverseTween.Kill();
-
         }
     }
 
-    public void SetScale(CollectibleBoxController target, int index)
+    public void SetScale(CollectibleController target, int index, CollectCenter center)
     {
+        myCenter = center;
         targetCollectible = target;
         IEnumerator Routine()
         {
@@ -35,23 +49,27 @@ public class LinkerRope : MonoBehaviour
             float distance = Vector3.Distance(target.transform.position, transform.position);
             Vector3 dir = (target.transform.position - transform.position).normalized;
             transform.up = dir;
-
-            bool exceedsTheThreshold = distance > maxDistanceThreshold;
-            distance = Mathf.Min(distance, maxDistanceThreshold);
+            #region Distance Check Region
+            //bool exceedsTheThreshold = distance > maxDistanceThreshold;
+            //distance = Mathf.Min(distance, maxDistanceThreshold);
+            #endregion
 
             float newScale = distance / 2;
 
-            transform.DOScaleY(newScale, .5f).OnComplete(() =>
+            scalingTween = transform.DOScaleY(newScale, .5f).OnComplete(() =>
             {
-                if (!exceedsTheThreshold)
-                {
-                    target.GetLinked();
-                }
-                else
-                {
-                    targetCollectible.SetIsAboutToLinked(false);
-                    ReverseCollecting(.2f);
-                }
+                //if (!exceedsTheThreshold)
+                //{
+                //   target.GetLinked();
+                //}
+                //else
+                //{
+                //    targetCollectible.SetIsAboutToLinked(false);
+                //    ReverseCollecting(.2f);
+                //}
+                if (!mesh.activeInHierarchy) return;
+
+                target.GetLinked();
                 PerformedMoving = true;
 
             });
@@ -60,8 +78,7 @@ public class LinkerRope : MonoBehaviour
         StartCoroutine(Routine());
     }
 
-    bool reverseCollectingInvoked;
-    Tween reverseTween;
+
     public void ReverseCollecting(float duration)
     {
         if (reverseCollectingInvoked) return;
@@ -69,24 +86,43 @@ public class LinkerRope : MonoBehaviour
 
         reverseTween = transform.DOScaleY(0, duration).OnComplete(() =>
           {
-              GameManager.instance.LevelEndedEvent -= OnLevelEnded;
-              Destroy(gameObject);
+              DestroySelf();
           });
     }
 
+    void DestroySelf()
+    {
+        GameManager.instance.LevelEndedEvent -= OnLevelEnded;
+        Destroy(gameObject);
+    }
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.TryGetComponent(out ObstacleController _))
+        {
+            if (!GameManager.instance.isLevelActive) return;
+
+            myCenter.DisableAllRopes();
+            GameManager.instance.EndGame(success: false, delayAsSeconds: 1.5f);
+        }
+
+
         if (PerformedMoving) return;
         if (targetCollectible == null) return;
-        if (!other.TryGetComponent(out CollectibleBoxController collectible)) return;
+        if (!other.TryGetComponent(out CollectibleController collectible)) return;
+        if (!collectible.CanBeCollected) return;
         if (targetCollectible == collectible) return;
 
-        StopTween();
+        OnHitOtherCollectibles();
     }
-
-    private void StopTween()
+    public void Disable()
     {
+        mesh.SetActive(false);
+    }
+    private void OnHitOtherCollectibles()
+    {
+        Instantiate(popUpCanvasPrefab, popUpPos.position, Quaternion.identity);
+
         PerformedMoving = true;
         targetCollectible.SetIsAboutToLinked(false);
         transform.DOKill(); // Stop all ongoing tweens on this object
