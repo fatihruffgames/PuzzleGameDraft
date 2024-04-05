@@ -128,10 +128,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9357d3ad329b0994c8bc6e9afbe48652, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCount: 15
+  spawnCount: 29
   collectiblePrefab: {fileID: 9111012503597298074, guid: 22f2216a38644704bb07fcb4b9600420,
     type: 3}
   spawnAreaCenter: {fileID: 6038405235273181117}
   spawnAreaSize: {x: -8, y: 0, z: 15}
-  minDistanceBetweenCollectibles: 1.5
+  minDistanceBetweenCollectibles: 0.5
   spawnedCollectibleTransforms: []

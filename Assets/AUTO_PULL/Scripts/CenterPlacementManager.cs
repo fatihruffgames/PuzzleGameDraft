@@ -7,7 +7,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
     public event System.Action<CollectCenter> CollectCenterPlacedEvent;
 
     [Header("Layer Masks")]
-    [SerializeField] LayerMask groundLayer;
+    public LayerMask groundLayer;
     [SerializeField] LayerMask collectibleLayer;
     [SerializeField] LayerMask obstacleLayer;
 
@@ -51,6 +51,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
             Vector3 _hitPos;
             if (HitSpecifiedObject(groundLayer, out _hitPos))
             {
+                _hitPos.y = .5f;
                 CollectCenter cloneCenter = Instantiate(centerPrefab, _hitPos, Quaternion.identity);
                 cloneCenter.Initialize(selectedColor);
                 CollectCenterPlacedEvent?.Invoke(cloneCenter);
@@ -91,7 +92,8 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
         return false;
     }
 
-    bool HitSpecifiedObject(LayerMask targetLayerMask, out Vector3 _hitPos)
+
+    public bool HitSpecifiedObject(LayerMask targetLayerMask, out Vector3 _hitPos)
     {
         bool isHit = false;
         _hitPos = Vector3.zero;

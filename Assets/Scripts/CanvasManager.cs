@@ -24,7 +24,6 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 
     IEnumerator Start()
     {
-       // CollectibleContainer.instance.CollectibleListModifiedEvent += OnCollectibleListModifiedEvent;
         GameManager.instance.LevelFailedEvent += OnLevelFailed;
         progressBarManager = GetComponentInChildren<ProgressBarManager>();
         yield return null;
@@ -118,6 +117,5 @@ public class CanvasManager : MonoSingleton<CanvasManager>
 public class ColorWrapperInfo
 {
     public CollectibleColor colorEnum;
-    public Material material;
     public Sprite sprite; 
 }
