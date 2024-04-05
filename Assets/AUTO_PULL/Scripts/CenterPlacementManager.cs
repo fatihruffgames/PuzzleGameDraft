@@ -51,6 +51,7 @@ public class CenterPlacementManager : MonoSingleton<CenterPlacementManager>
             Vector3 _hitPos;
             if (HitSpecifiedObject(groundLayer, out _hitPos))
             {
+                _hitPos.y = .5f;
                 CollectCenter cloneCenter = Instantiate(centerPrefab, _hitPos, Quaternion.identity);
                 cloneCenter.Initialize(selectedColor);
                 CollectCenterPlacedEvent?.Invoke(cloneCenter);

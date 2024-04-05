@@ -98,7 +98,7 @@ public class LinkerRope : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out ObstacleController _))
+        if (other.TryGetComponent(out BladeController _))
         {
             if (!GameManager.instance.isLevelActive) return;
 

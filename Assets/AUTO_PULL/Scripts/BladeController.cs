@@ -5,18 +5,25 @@ public enum MovementDirection
     Vertical,
     Horizontal
 }
-
-
-public class ObstacleController : MonoBehaviour
+public enum RotationAxis
 {
+    X,
+    Y,
+    Z
+}
+public class BladeController : MonoBehaviour
+{
+    [Header("Movement")]
+    [SerializeField] MovementDirection direction;
+    [SerializeField] float moveSpeed;
+    [SerializeField] float moveRange;
 
-    public MovementDirection direction;
-    public float moveSpeed;
-    public float moveRange;
+    [Header("Rotation")]
+    [SerializeField] private RotationAxis rotationAxis;
+    [SerializeField] private float rotationSpeed;
 
     private float initialPosition;
     private bool movingForward = true;
-
 
     void Start()
     {
@@ -28,7 +35,12 @@ public class ObstacleController : MonoBehaviour
     {
         if (!GameManager.instance.isLevelActive) return;
 
+        Move();
+        Rotate();
+    }
 
+    private void Move()
+    {
         float targetPosition = movingForward ? initialPosition + moveRange : initialPosition - moveRange;
         float newPosition = direction == MovementDirection.Vertical ? transform.position.z : transform.position.x;
 
@@ -42,5 +54,26 @@ public class ObstacleController : MonoBehaviour
 
         if (Mathf.Abs(newPosition - targetPosition) < 0.01f)
             movingForward = !movingForward;
+    }
+
+    void Rotate()
+    {
+        // Determine the rotation axis
+        Vector3 axis = Vector3.zero;
+        switch (rotationAxis)
+        {
+            case RotationAxis.X:
+                axis = Vector3.right;
+                break;
+            case RotationAxis.Y:
+                axis = Vector3.down;
+                break;
+            case RotationAxis.Z:
+                axis = Vector3.forward;
+                break;
+        }
+
+        // Rotate the object continuously
+        transform.Rotate(axis, rotationSpeed * Time.deltaTime);
     }
 }
